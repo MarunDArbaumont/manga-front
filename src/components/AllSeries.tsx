@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { fetchAllSeries } from "../api/series"
 import type { Serie } from "../api/series"
+import ErrorMessage from './ErrorMessage'
+import Loading from './Loading'
 
 function AllSeries() {
     const [series, setSeries] = useState<Serie[]>([])
@@ -23,8 +25,8 @@ function AllSeries() {
         load()
     }, [])
 
-    if (loading) return <p>Loading...</p>
-    if (error) return <p>Error: {error}</p>
+    if (loading) return <Loading message="Loading series..." />
+    if (error) return <ErrorMessage message={error} />
 
     return (
         <>

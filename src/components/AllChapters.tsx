@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react'
 import { fetchAllChapters } from "../api/chapters"
 import type { Chapter } from "../api/chapters"
-
-
-
-
+import Loading from './Loading'
+import ErrorMessage from './ErrorMessage'
 
 function AllChapters() {
     const [chapters, setChapters] = useState<Chapter[]>([])
@@ -27,8 +25,8 @@ function AllChapters() {
         load()
     }, [])
 
-    if (loading) return <p>Loading...</p>
-    if (error) return <p>Error: {error}</p>
+    if (loading) return <Loading message="Loading chapters..." />
+    if (error) return <ErrorMessage message={error} />
 
     return (
         <>

@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react'
 import { fetchAllAuthors } from "../api/authors"
 import type { Author } from "../api/authors"
-
-
-
-
+import Loading from './Loading'
+import ErrorMessage from './ErrorMessage'
 
 function AllAuhtors() {
     const [authors, setAuthors] = useState<Author[]>([])
@@ -27,8 +25,8 @@ function AllAuhtors() {
         load()
     }, [])
 
-    if (loading) return <p>Loading...</p>
-    if (error) return <p>Error: {error}</p>
+    if (loading) return <Loading message="Loading authors..." />
+    if (error) return <ErrorMessage message={error} />
     
     return (
         <>
