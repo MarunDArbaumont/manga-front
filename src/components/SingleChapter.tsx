@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { fetchChapterSerie } from "../api/chapters"
+import { fetchSingleChapter } from "../api/chapters"
 import ErrorMessage from './ErrorMessage'
 import Loading from './Loading'
 import type { Chapter } from '../api/chapters'
@@ -13,7 +13,7 @@ function SingleChapter( {id}: { id: string }) {
         
         async function load() {
             try {
-                const data = await fetchChapterSerie(id)
+                const data = await fetchSingleChapter(id)
                 setChapter(data)
             } catch (err) {
                 if (err instanceof Error) {

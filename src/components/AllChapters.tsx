@@ -32,10 +32,10 @@ function AllChapters() {
         <>
             <h2>Manga chapters</h2>
             {chapters.map((chapter) => (
-                <div key={chapter.number}>
-                <h3>{chapter.name}</h3>
-                <p>first published: {chapter.first_published}</p>
-                </div>
+                <a key={chapter.id} href={"/chapters/" + chapter.id}>
+                    <h3>{chapter.name}</h3>
+                    <p>first published: {chapter.first_published}</p>
+                </a>
             ))}
         </>
   )

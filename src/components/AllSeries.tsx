@@ -32,10 +32,10 @@ function AllSeries() {
         <>
             <h2>Manga series</h2>
             {series.map((serie) => (
-                <div key={serie.id}>
+                <a key={serie.id} href={"/series/" + serie.id}>
                     <h3>{serie.title}</h3>
                     <p>first published: {serie.first_published}</p>
-                </div>
+                </a>
             ))}
         </>
   )

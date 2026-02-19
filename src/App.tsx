@@ -11,6 +11,7 @@ function App() {
   return (
   <BrowserRouter>
     <nav>
+      <Link to="/">Home</Link>
       <Link to="/series">Series</Link>
       <Link to="/authors">Authors</Link>
       <Link to="/chapters">Chapters</Link>

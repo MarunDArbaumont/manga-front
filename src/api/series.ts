@@ -3,6 +3,7 @@ import API_BASE_URL from "./variables"
 export type Serie = {
     id: number;
     title: string;
+    author: number[]
     first_published: string;
     last_published: string | null;
     description: string;
@@ -27,7 +28,6 @@ export async function fetchAllSeries(): Promise<Serie[]> {
 }
 
 export async function fetchSingleSerie(id: string): Promise<Serie> {
-    console.log("INSIDE fetchSingleSerie", id)
     const url: string = API_BASE_URL + "series/" + id + "/"
     try {
         const response = await fetch(url)

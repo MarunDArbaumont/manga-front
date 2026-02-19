@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom"
 import ErrorMessage from "../components/ErrorMessage"
 import SingleChapter from "../components/SingleChapter"
 
-function SingleSeriePage() {
+function SingleChapterPage() {
     const { id } = useParams<{ id: string }>()
 
     if (!id) {
@@ -15,4 +15,4 @@ function SingleSeriePage() {
 }
 
 
-export default SingleSeriePage
+export default SingleChapterPage
