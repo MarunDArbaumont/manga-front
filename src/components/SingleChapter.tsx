@@ -3,6 +3,7 @@ import { fetchSingleChapter } from "../api/chapters"
 import ErrorMessage from './ErrorMessage'
 import Loading from './Loading'
 import type { Chapter } from '../api/chapters'
+import dateFormat from '../helper-function/dateFormat'
 
 function SingleChapter( {id}: { id: string }) {
     const [chapter, setChapter] = useState<Chapter | null>(null)
@@ -33,7 +34,7 @@ function SingleChapter( {id}: { id: string }) {
     return (
         <>
             <h3>{chapter.name}</h3>
-            <p>first published: {chapter.first_published}</p>
+            <p>first published: {dateFormat(chapter.first_published)}</p>
         </>
     )
 }

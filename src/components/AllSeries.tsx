@@ -34,7 +34,6 @@ function AllSeries() {
             {series.map((serie) => (
                 <a key={serie.id} href={"/series/" + serie.id}>
                     <h3>{serie.title}</h3>
-                    <p>first published: {serie.first_published}</p>
                 </a>
             ))}
         </>

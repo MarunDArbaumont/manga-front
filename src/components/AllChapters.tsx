@@ -34,7 +34,6 @@ function AllChapters() {
             {chapters.map((chapter) => (
                 <a key={chapter.id} href={"/chapters/" + chapter.id}>
                     <h3>{chapter.name}</h3>
-                    <p>first published: {chapter.first_published}</p>
                 </a>
             ))}
         </>

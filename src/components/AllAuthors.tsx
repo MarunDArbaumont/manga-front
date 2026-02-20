@@ -34,7 +34,6 @@ function AllAuhtors() {
             {authors.map((author) => (
                 <a href={"/authors/" + author.id}>
                     <h3>{author.name}</h3>
-                    <p>Born in: {author.birth_day}</p>
                 </a>
             ))}
         </>

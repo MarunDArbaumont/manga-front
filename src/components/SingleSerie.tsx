@@ -4,6 +4,7 @@ import type { Serie } from "../api/series"
 import ErrorMessage from './ErrorMessage'
 import Loading from './Loading'
 import { ChaptersByMangaId, type Chapter } from '../api/chapters'
+import dateFormat from '../helper-function/dateFormat'
 
 function SingleSerie( {id}: { id: string }) {
     const [serie, setSerie] = useState<Serie | null>(null)
@@ -37,7 +38,8 @@ function SingleSerie( {id}: { id: string }) {
     return (
         <>
             <h3>{serie.title}</h3>
-            <p>first published: {serie.first_published}</p>
+            <p>first published: {dateFormat(serie.first_published)}</p>
+            <p>{serie.genre}</p>
             <div>
                 <h3>Chapters:</h3>
                 <ul>

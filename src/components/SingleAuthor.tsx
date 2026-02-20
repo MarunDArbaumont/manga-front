@@ -3,6 +3,7 @@ import { fetchSingleAuthor, type Author } from "../api/authors"
 import { fetchSingleSerie, type Serie } from "../api/series"
 import ErrorMessage from './ErrorMessage'
 import Loading from './Loading'
+import dateFormat from "./../helper-function/dateFormat"
 
 function SingleAuthor( {id}: { id: string }) {
     const [author, setAuthor] = useState<Author | null>(null)
@@ -47,7 +48,10 @@ function SingleAuthor( {id}: { id: string }) {
     return (
         <>
             <h2>{author.name}</h2>
-            <p>born on: {author.birth_day}</p>
+            <p>born on: {dateFormat(author.birth_day)}</p>
+            {typeof author.death_date == "string" ? (
+                <p>death date: {dateFormat(author.death_date)}</p>
+            ): null}
             <h3>Mangas:</h3>
             <ul>
                 {series.map((serie) => (
