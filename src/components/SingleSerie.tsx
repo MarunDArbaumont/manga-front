@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react'
 import { fetchSingleSerie } from "../api/series"
-import type { Serie } from "../api/series"
+import type { SerieSingle } from "../api/series"
 import ErrorMessage from './ErrorMessage'
 import Loading from './Loading'
-import { ChaptersByMangaId, type Chapter } from '../api/chapters'
 import dateFormat from '../helper-function/dateFormat'
 
 function SingleSerie( {id}: { id: string }) {
-    const [serie, setSerie] = useState<Serie | null>(null)
-    const [chapters, setChapters] = useState<Chapter[]>([])
+    const [serie, setSerie] = useState<SerieSingle | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
 
@@ -17,9 +15,8 @@ function SingleSerie( {id}: { id: string }) {
         async function load() {
             try {
                 const dataSerie = await fetchSingleSerie(id)
+                console.log(dataSerie)
                 setSerie(dataSerie)
-                const dataChapters = await ChaptersByMangaId(id)
-                setChapters(dataChapters)
             } catch (err) {
                 if (err instanceof Error) {
                     setError(err.message)
@@ -38,13 +35,16 @@ function SingleSerie( {id}: { id: string }) {
     return (
         <>
             <h3>{serie.title}</h3>
+            {serie.cover ? (
+                <img src={serie.cover} className='serie-cover' />
+            ): null}
             <p>first published: {dateFormat(serie.first_published)}</p>
             <p>{serie.genre}</p>
             <div>
                 <h3>Chapters:</h3>
                 <ul>
-                {chapters.map((chapter) => (
-                    <li>
+                {serie.chapters.map((chapter) => (
+                    <li key={chapter.id}>
                         <a href={"/chapters/" + chapter.id}>Number {chapter.number}: {chapter.name}</a>
                     </li>
                 ))}

@@ -1,4 +1,5 @@
 import API_BASE_URL from "./variables"
+import type { Chapter } from "./chapters";
 
 export type Serie = {
     id: number;
@@ -11,6 +12,8 @@ export type Serie = {
     genre: string | null;
 }
 
+export type SerieSingle = Serie & {chapters: Chapter[] | []}
+
 export async function fetchAllSeries(): Promise<Serie[]> {
     const url: string = API_BASE_URL + "series"
     try {
@@ -19,7 +22,7 @@ export async function fetchAllSeries(): Promise<Serie[]> {
             throw new Error(`Response status: ${response.status}`)
         }
         const result = await response.json()
-        return result
+        return result.results
     } catch (error) {
         let message = "Unknown Error"
         if (error instanceof Error) message = error.message
@@ -27,7 +30,7 @@ export async function fetchAllSeries(): Promise<Serie[]> {
     }
 }
 
-export async function fetchSingleSerie(id: string): Promise<Serie> {
+export async function fetchSingleSerie(id: string): Promise<SerieSingle> {
     const url: string = API_BASE_URL + "series/" + id + "/"
     try {
         const response = await fetch(url)

@@ -16,7 +16,7 @@ export async function fetchAllChapters(): Promise<Chapter[]> {
             throw new Error(`Response status: ${response.status}`)
         }
         const result = await response.json()
-        return result
+        return result.results
     } catch (error) {
         let message = "Unknown Error"
         if (error instanceof Error) message = error.message
@@ -48,7 +48,7 @@ export async function ChaptersByMangaId(id: string): Promise<Chapter[]> {
             throw new Error(`Response status: ${response.status}`)
         }
         const result = await response.json()
-        return result
+        return result.results
     } catch (error) {
         let message = "Unknown Error"
         if (error instanceof Error) message = error.message

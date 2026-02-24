@@ -32,7 +32,7 @@ function AllAuhtors() {
         <>
             <h2>Manga auhtors</h2>
             {authors.map((author) => (
-                <a href={"/authors/" + author.id}>
+                <a key={author.id} href={"/authors/" + author.id}>
                     <h3>{author.name}</h3>
                 </a>
             ))}

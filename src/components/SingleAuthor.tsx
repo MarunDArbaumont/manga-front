@@ -48,6 +48,9 @@ function SingleAuthor( {id}: { id: string }) {
     return (
         <>
             <h2>{author.name}</h2>
+            {author.image ? (
+               <img src={author.image} alt={"Image of " + author.name} className='single-author-image' />
+            ): null}
             <p>born on: {dateFormat(author.birth_day)}</p>
             {typeof author.death_date == "string" ? (
                 <p>death date: {dateFormat(author.death_date)}</p>
@@ -55,7 +58,7 @@ function SingleAuthor( {id}: { id: string }) {
             <h3>Mangas:</h3>
             <ul>
                 {series.map((serie) => (
-                    <li><a key={serie.id} href={"/series/" + serie.id}>{serie.title}</a></li>
+                    <li key={serie.id}><a href={"/series/" + serie.id}>{serie.title}</a></li>
                 ))}
             </ul>
         </>

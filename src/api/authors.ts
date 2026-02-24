@@ -6,18 +6,19 @@ export type Author = {
     mangas: number[]
     birth_day: string;
     death_date: string | null;
+    image: string | null;
     manga_id: number;
 }
 
 export async function fetchAllAuthors(): Promise<Author[]> {
-    const url: string = API_BASE_URL + "authors"
+    const url: string = API_BASE_URL + "authors?limit=0"
     try {
         const response = await fetch(url)
         if (!response.ok) {
             throw new Error(`Response status: ${response.status}`)
         }
         const result = await response.json()
-        return result
+        return result.results
     } catch (error) {
         let message = "Unknown Error"
         if (error instanceof Error) message = error.message

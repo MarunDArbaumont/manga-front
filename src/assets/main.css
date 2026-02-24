@@ -1,0 +1,10 @@
+.serie-cover {
+    width: 20rem;
+}
+
+.single-author-image {
+    object-fit: cover;
+    width: 20rem;
+    max-height: 25rem;
+    border: solid #000 3px;
+}
