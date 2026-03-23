@@ -6,6 +6,8 @@ import ChaptersPage from './pages/ChaptersPage'
 import SingleSeriePage from './pages/SingleSeriePage'
 import SingleChapterPage from './pages/SingleChapter'
 import SingleAuthorPage from './pages/SingleAuthor'
+import Disconnect from './components/Disconnect'
+import Register from './pages/Resgister'
 
 function App() {
   return (
@@ -15,6 +17,7 @@ function App() {
       <Link to="/series">Series</Link>
       <Link to="/authors">Authors</Link>
       <Link to="/chapters">Chapters</Link>
+      <Disconnect />
     </nav>
     <Routes>
       <Route path="/" element={<Home />} />
@@ -24,6 +27,7 @@ function App() {
       <Route path="/authors/:id" element={<SingleAuthorPage />} />
       <Route path="/chapters" element={<ChaptersPage />} />
       <Route path="/chapters/:id" element={<SingleChapterPage />} />
+      <Route path="/register" element={<Register />} />
     </Routes>
   </BrowserRouter>
   )
