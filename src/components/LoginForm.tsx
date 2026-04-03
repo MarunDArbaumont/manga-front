@@ -1,37 +1,17 @@
 import { useState } from "react"
-import API_BASE_URL from "../api/variables"
+import {setToken} from "../api/token"
+import type {loginInfoType} from "../api/token"
 
 function LoginForm() {
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const loginInfo = {
+        const loginInfo: loginInfoType = {
             username: username,
             password: password,
-        };
-        fetch(API_BASE_URL + "token/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(loginInfo),
-        })
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error("Invalid credentials")
-            }
-            return response.json()
-        })
-        .then((newLoginCookie) => {
-            localStorage.setItem("refresh", newLoginCookie.refresh)
-            localStorage.setItem("access", newLoginCookie.access)
-            console.log(localStorage.getItem("refresh"))
-            console.log(localStorage.getItem("access"))
-        })
-        .catch((error) => {
-            console.log(error);
-        })
+        }
+        setToken(loginInfo)
     }
     return (
         <>

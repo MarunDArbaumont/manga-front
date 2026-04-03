@@ -1,9 +1,8 @@
+import { clearToken } from "../api/token"
+
 function Disconnect() {
     const handleClick = () => {
-        localStorage.removeItem("refresh")
-        localStorage.removeItem("access")
-        console.log(localStorage.getItem("refresh"))
-        console.log(localStorage.getItem("access"))
+        clearToken()
     }
 
     return (

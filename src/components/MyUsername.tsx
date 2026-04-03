@@ -1,25 +1,9 @@
 import { useEffect, useState } from "react"
 import API_BASE_URL from "../api/variables"
+import getMe from "../api/profile"
 
 function Me() {
-    type me = {
-        id: number
-        username: string
-    }
-
     const [username, setUsername] = useState("")
-    async function getMe(url: string): Promise<me> {
-        const response = await fetch(url, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("access")}`
-            }
-        })
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`)
-        }
-        const result = await response.json()
-        return result
-    }
     useEffect(() => {
         async function load() {
             try {
@@ -27,7 +11,7 @@ function Me() {
                 setUsername(data.username)
             } catch (err) {
                 if (err instanceof Error) {
-                    throw new Error(`error`)
+                    throw err
                 }
             }
         }
@@ -35,7 +19,10 @@ function Me() {
     }, [])
     return (
         <>
-            <p><b>{username}</b></p>
+            {username ? (
+                <p><b>{username}</b></p>
+            ): null}
+            
         </>
     )
 }
