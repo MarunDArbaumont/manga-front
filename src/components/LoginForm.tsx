@@ -1,21 +1,35 @@
 import { useState } from "react"
-import {setToken} from "../api/token"
-import type {loginInfoType} from "../api/token"
+import {fetchUser} from "../api/token"
+import { useNavigate } from "react-router-dom"
+import { useAuth } from "../hooks/useAuth"
 
 function LoginForm() {
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const loginInfo: loginInfoType = {
-            username: username,
-            password: password,
+    const navigate = useNavigate()
+    const { login } = useAuth();
+    
+    const handleLogin = async (
+        event: React.FormEvent<HTMLFormElement>
+    ) => {
+        event.preventDefault()
+
+        try {
+            const user = await fetchUser({
+                username,
+                password,
+            })
+
+            login(user)
+            navigate("/")
+        } catch (error) {
+            console.error(error)
         }
-        setToken(loginInfo)
     }
+
     return (
         <>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleLogin}>
             <label>
                 Username:
                 <input

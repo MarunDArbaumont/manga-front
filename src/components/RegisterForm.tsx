@@ -1,20 +1,20 @@
-import { useState } from "react";
-import API_BASE_URL from "../api/variables";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react"
+import API_BASE_URL from "../api/variables"
+import { useNavigate } from "react-router-dom"
 
 function RegisterForm() {
     const [email, setEmail] = useState("")
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
-    const navigate = useNavigate();
+    const navigate = useNavigate()
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+        event.preventDefault()
         const registerInfo = {
             username: username,
             password: password,
             email: email,
-        };
+        }
         fetch(API_BASE_URL + "users", {
             method: "POST",
             headers: {
@@ -24,10 +24,10 @@ function RegisterForm() {
         })
         .then((response) => response.json())
         .then(() => {
-            navigate("/");
+            navigate("/")
         })
         .catch((error) => {
-            console.log(error);
+            throw error
         })
     }
     return (
@@ -55,7 +55,7 @@ function RegisterForm() {
             </label>
             <button type="submit">Submit</button>
         </form>
-    );
+    )
 }
 
 export default RegisterForm

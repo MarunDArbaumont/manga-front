@@ -15,7 +15,6 @@ function SingleSerie( {id}: { id: string }) {
         async function load() {
             try {
                 const dataSerie = await fetchSingleSerie(id)
-                console.log(dataSerie)
                 setSerie(dataSerie)
             } catch (err) {
                 if (err instanceof Error) {

@@ -2,12 +2,12 @@ import API_BASE_URL from "./variables"
 
 export type Author = {
     id: number
-    name: string;
+    name: string
     mangas: number[]
-    birth_day: string;
-    death_date: string | null;
-    image: string | null;
-    manga_id: number;
+    birth_day: string
+    death_date: string | null
+    image: string | null
+    manga_id: number
 }
 
 export async function fetchAllAuthors(): Promise<Author[]> {

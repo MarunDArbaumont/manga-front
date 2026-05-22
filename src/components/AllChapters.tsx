@@ -13,7 +13,6 @@ function AllChapters() {
         async function load() {
             try {
                 const data = await fetchAllChapters()
-                console.log(data)
                 setChapters(data)
             } catch (err) {
                 if (err instanceof Error) {

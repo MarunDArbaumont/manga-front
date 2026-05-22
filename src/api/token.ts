@@ -1,3 +1,4 @@
+import type { User } from "../hooks/useUser"
 import API_BASE_URL from "./variables"
 
 export type tokenType = {
@@ -10,30 +11,56 @@ export type loginInfoType = {
     password: string
 }
 
-export async function setToken(loginInfo: loginInfoType) {
-    await fetch(API_BASE_URL + "token/", {
+export async function fetchToken(loginInfo: loginInfoType): Promise<tokenType> {
+    const response = await fetch(API_BASE_URL + "token/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(loginInfo),
         })
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error("Invalid credentials")
-            }
-            return response.json()
-        })
-        .then((data) => {
-            localStorage.setItem("refresh", data.refresh)
-            localStorage.setItem("access", data.access)
-        })
-        .catch((error) => {
-            throw error
-        })
+        
+    if (!response.ok) {
+        throw new Error("Invalid credentials")
+    }
+    
+    const data = await response.json()
+    const token: tokenType = {
+        access: data.access,
+        refresh: data.refresh
+    }
+    return token
 }
 
-export async function refreshToken(refreshTokenValue: string) {
+export async function fetchUser(loginInfo: loginInfoType): Promise<User> {
+    const token = await fetchToken(loginInfo)
+
+    const response = await fetch(API_BASE_URL + "me", {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${token.access}`
+        },
+    })
+
+    if (!response.ok) {
+        throw new Error("Invalid token")
+    }
+
+    const data = await response.json()
+
+    const user: User = {
+        id: data.id,
+        username: data.username,
+        authToken: {
+            access: token.access,
+            refresh: token.refresh
+        }
+    }
+
+    return user
+}
+
+export async function fectchRefreshToken(refreshTokenValue: string): Promise<any> {
     const response = await fetch(API_BASE_URL + "token/refresh/", {
         method: "POST",
         headers: {
@@ -47,19 +74,9 @@ export async function refreshToken(refreshTokenValue: string) {
     }
 
     const data = await response.json()
-    localStorage.setItem("access", data.access)
-    return data.access
-}
-
-export async function getToken(): Promise<tokenType>{
-    let token: tokenType = {
-        access: localStorage.getItem("access"),
-        refresh: localStorage.getItem("refresh")
-    }
+    const token: tokenType = {
+                access: data.access,
+                refresh: refreshTokenValue
+            }
     return token
-}
-
-export async function clearToken() {
-    localStorage.removeItem("access")
-    localStorage.removeItem("refresh")
 }

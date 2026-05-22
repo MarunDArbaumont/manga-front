@@ -2,10 +2,10 @@ import API_BASE_URL from "./variables"
 
 export type Chapter = {
     id: number
-    number: number;
-    name: string;
-    first_published: string;
-    manga_id: number;
+    number: number
+    name: string
+    first_published: string
+    manga_id: number
 }
 
 export async function fetchAllChapters(): Promise<Chapter[]> {

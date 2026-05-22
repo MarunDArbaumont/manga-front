@@ -1,12 +1,13 @@
-import LoginForm from "../components/LoginForm"
-import Me from "../components/MyUsername"
+import { useAuth } from "../hooks/useAuth"
 
 function Home() {
+    const { user } = useAuth()
     return(
         <>
             <h1>This is the home page</h1>
-            <LoginForm></LoginForm>
-            <Me></Me>
+            {user ? (
+                <p>Hello {user.username}</p>
+            ) : null}
         </>
     )
 }

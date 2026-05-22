@@ -1,15 +1,15 @@
 import API_BASE_URL from "./variables"
-import type { Chapter } from "./chapters";
+import type { Chapter } from "./chapters"
 
 export type Serie = {
-    id: number;
-    title: string;
+    id: number
+    title: string
     author: number[]
-    first_published: string;
-    last_published: string | null;
-    description: string;
-    cover: string | null;
-    genre: string | null;
+    first_published: string
+    last_published: string | null
+    description: string
+    cover: string | null
+    genre: string | null
 }
 
 export type SerieSingle = Serie & {chapters: Chapter[] | []}
