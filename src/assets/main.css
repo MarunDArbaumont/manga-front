@@ -1,3 +1,35 @@
+@font-face {
+  font-family: roboto;
+  src: url(./fonts/Roboto_Condensed-Regular.ttf);
+}
+
+p, a, h1, h2, h3 {
+    font-family: roboto;
+}
+
+nav {
+    display: flex;
+    gap: 1rem;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    background-color: #6d6d6d;
+}
+
+button {
+    border: none;
+    background: none;
+}
+
+a {
+    color: #000;
+    text-decoration: none;
+}
 .serie-cover {
     width: 20rem;
 }
