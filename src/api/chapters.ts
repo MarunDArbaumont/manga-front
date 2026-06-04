@@ -1,4 +1,6 @@
 import API_BASE_URL from "./variables"
+import { helperFetch } from "./helper"
+import type { ResultPagination } from "./helper"
 
 export type Chapter = {
     id: number
@@ -10,48 +12,18 @@ export type Chapter = {
 
 export async function fetchAllChapters(): Promise<Chapter[]> {
     const url: string = API_BASE_URL + "chapters"
-    try {
-        const response = await fetch(url)
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`)
-        }
-        const result = await response.json()
-        return result.results
-    } catch (error) {
-        let message = "Unknown Error"
-        if (error instanceof Error) message = error.message
-        throw new Error(message)
-    }
+    const result = await helperFetch<ResultPagination>(url)
+    return (await result).results
 }
 
 export async function fetchSingleChapter(id: string): Promise<Chapter> {
     const url: string = API_BASE_URL + "chapters/" + id + "/"
-    try {
-        const response = await fetch(url)
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`)
-        }
-        const result = await response.json()
-        return result
-    } catch (error) {
-        let message = "Unknown Error"
-        if (error instanceof Error) message = error.message
-        throw new Error(message)
-    }
+    const result = helperFetch<Chapter>(url)
+    return result
 }
 
 export async function ChaptersByMangaId(id: string): Promise<Chapter[]> {
     const url: string = API_BASE_URL + "chapters?manga=" + id
-    try {
-        const response = await fetch(url)
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`)
-        }
-        const result = await response.json()
-        return result.results
-    } catch (error) {
-        let message = "Unknown Error"
-        if (error instanceof Error) message = error.message
-        throw new Error(message)
-    }
+   const result = await helperFetch<ResultPagination>(url)
+    return (await result).results
 }

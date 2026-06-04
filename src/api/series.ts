@@ -1,5 +1,7 @@
 import API_BASE_URL from "./variables"
 import type { Chapter } from "./chapters"
+import { helperFetch } from "./helper"
+import type { ResultPagination } from "./helper"
 
 export type Serie = {
     id: number
@@ -16,32 +18,12 @@ export type SerieSingle = Serie & {chapters: Chapter[] | []}
 
 export async function fetchAllSeries(): Promise<Serie[]> {
     const url: string = API_BASE_URL + "series"
-    try {
-        const response = await fetch(url)
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`)
-        }
-        const result = await response.json()
-        return result.results
-    } catch (error) {
-        let message = "Unknown Error"
-        if (error instanceof Error) message = error.message
-        throw new Error(message)
-    }
+    const result = await helperFetch<ResultPagination>(url)
+    return (await result).results
 }
 
 export async function fetchSingleSerie(id: string): Promise<SerieSingle> {
     const url: string = API_BASE_URL + "series/" + id + "/"
-    try {
-        const response = await fetch(url)
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`)
-        }
-        const result = await response.json()
-        return result
-    } catch (error) {
-        let message = "Unknown Error"
-        if (error instanceof Error) message = error.message
-        throw new Error(message)
-    }
+    const result = await helperFetch<SerieSingle>(url)
+    return result
 }
