@@ -27,7 +27,7 @@ function App() {
       {user? (
         <div>
           <Disconnect />
-          <Link to="/">{user.username}</Link>
+          <Link to={`/profile/${user.id}`}>{user.username}</Link>
         </div>
         ): (
         <div>

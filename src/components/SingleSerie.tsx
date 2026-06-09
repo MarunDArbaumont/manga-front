@@ -44,7 +44,7 @@ function SingleSerie( {id}: { id: string }) {
                 <ul>
                 {serie.chapters.map((chapter) => (
                     <li key={chapter.id}>
-                        <a href={"/chapters/" + chapter.id}>Number {chapter.number}: {chapter.name}</a>
+                        <a href={"/chapters/" + chapter.id}>Chapter {chapter.number}: {chapter.name}</a>
                     </li>
                 ))}
                 </ul>

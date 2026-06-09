@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
-import { fetchProfileByUserID, fetchUserByID, type Profile, type UserType } from '../api/users'
+import { fetchProfileByUserID, fetchUserByID, type SingleProfile, type UserType } from '../api/users'
 import ErrorMessage from './ErrorMessage'
 import Loading from './Loading'
 
 function ProfileComponent( {id}: { id: string }) {
-    const [profile, setProfile] = useState<Profile | null>(null)
+    const [profile, setProfile] = useState<SingleProfile | null>(null)
     const [profileUser, setUserProfile] = useState<UserType | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
@@ -28,13 +28,13 @@ function ProfileComponent( {id}: { id: string }) {
 
     useEffect(() => {
 
-    async function loadSeries() {
+    async function loadUser() {
         if (!profile) return
         const results = await fetchUserByID(profile.user_id.toString())
         setUserProfile(results)
     }
 
-    loadSeries()
+    loadUser()
 }, [profile])
 
     if (loading) return <Loading message="Loading series..." />
@@ -45,6 +45,14 @@ function ProfileComponent( {id}: { id: string }) {
         <>
             <h2>Welcome to {profileUser?.username}'s profile</h2>
             <p>Bio: {profile.bio}</p>
+            <h3>Collection: </h3>
+            <ul>
+                {profile.mangas.map((chapter) => (
+                    <li key={chapter.id}>
+                        <a href={"/chapters/" + chapter.id}>Number {chapter.number}: {chapter.name}</a>
+                    </li>
+                ))}
+            </ul>
         </>
     )
 }
