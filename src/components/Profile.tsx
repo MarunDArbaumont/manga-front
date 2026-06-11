@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { fetchProfileByUserID, fetchUserByID, type SingleProfile, type UserType } from '../api/users'
 import ErrorMessage from './ErrorMessage'
 import Loading from './Loading'
+import ReviewComponent from './Review'
 
 function ProfileComponent( {id}: { id: string }) {
     const [profile, setProfile] = useState<SingleProfile | null>(null)
@@ -30,7 +31,7 @@ function ProfileComponent( {id}: { id: string }) {
 
     async function loadUser() {
         if (!profile) return
-        const results = await fetchUserByID(profile.user_id.toString())
+        const results = await fetchUserByID(profile.user.toString())
         setUserProfile(results)
     }
 
@@ -53,6 +54,7 @@ function ProfileComponent( {id}: { id: string }) {
                     </li>
                 ))}
             </ul>
+            <ReviewComponent id={profile.user.toString()} review_type={"user"} />
         </>
     )
 }
