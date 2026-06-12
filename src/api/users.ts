@@ -16,10 +16,10 @@ export type UserType = {
 
 export type ReviewType = {
     id: number
-    user: number
+    user: UserType
     rating: number
     description: string
-    chapter: number
+    chapter: Chapter
 }
 
 export type SingleProfile = Profile & {mangas: Chapter[] | []}

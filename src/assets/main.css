@@ -9,6 +9,11 @@ p, a, h1, h2, h3 {
 
 nav {
     display: flex;
+    justify-content: space-between;
+}
+
+nav div {
+    display: flex;
     gap: 1rem;
 }
 
@@ -39,4 +44,14 @@ a {
     width: 20rem;
     max-height: 25rem;
     border: solid #000 3px;
+}
+
+.single-review {
+    padding: 1rem;
+    border: solid #000 1px;
+    margin-bottom: 1rem;
+}
+
+.disconnect:hover {
+    cursor: pointer;
 }

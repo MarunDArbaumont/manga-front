@@ -11,7 +11,7 @@ function Disconnect() {
     }
 
     return (
-        <button onClick={handleClick}>Disconnect</button>
+        <a className="disconnect" onClick={handleClick}>Disconnect</a>
     )
 }
 

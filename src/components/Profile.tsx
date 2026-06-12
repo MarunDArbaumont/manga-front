@@ -44,7 +44,7 @@ function ProfileComponent( {id}: { id: string }) {
 
     return (
         <>
-            <h2>Welcome to {profileUser?.username}'s profile</h2>
+            <h1>Welcome to {profileUser?.username}'s profile</h1>
             <p>Bio: {profile.bio}</p>
             <h3>Collection: </h3>
             <ul>

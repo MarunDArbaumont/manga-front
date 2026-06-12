@@ -42,18 +42,21 @@ function ReviewComponent( {
 
     return (
         <>
-            <h3>Reviews:</h3>
+            <h2>Reviews:</h2>
+            <ul>
             {reviews.map((review) => (
-                    <li key={review.id}>
+                    <li key={review.id} className='single-review'>
                         {review_type == "user" ? (
-                            <p>Chapter: {review.chapter}</p>
+                            <p>Chapter: <a href={`/chapters/${review.chapter.id}`}>{review.chapter.name}</a></p>
                         ): null }
                         {review_type == "chapter" ? (
-                            <p>User: <a href={`/profile/${review.user}`}>{review.user}</a></p>
+                            <p>User: <a href={`/profile/${review.user.id}`}>{review.user.username}</a></p>
                         ): null }
                         <p>Rating: {review.rating}/5</p>
+                        <p>{review.description}</p>
                     </li>
                 ))}
+            </ul>
         </>
     )
 }
