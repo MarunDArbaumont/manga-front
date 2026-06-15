@@ -78,5 +78,5 @@ export async function fectchRefreshToken(refreshTokenValue: string): Promise<any
                 access: data.access,
                 refresh: refreshTokenValue
             }
-    return token
+    return token.access
 }

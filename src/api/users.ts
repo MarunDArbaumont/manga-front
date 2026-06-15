@@ -43,7 +43,7 @@ export async function fetchAllUsers(): Promise<UserType[]> {
 }
 
 export async function fetchAllReveiws(): Promise<ReviewType[]> {
-    const url: string = API_BASE_URL + "reviews"
+    const url: string = API_BASE_URL + "reviews/"
     const result = await helperFetch<ResultPagination>(url)
     return (await result).results
 }
