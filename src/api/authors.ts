@@ -13,7 +13,7 @@ export type Author = {
 }
 
 export async function fetchAllAuthors(): Promise<Author[]> {
-    const url: string = API_BASE_URL + "authors?limit=0"
+    const url: string = API_BASE_URL + "authors/?limit=0"
     const result = await helperFetch<ResultPagination>(url)
     return (await result).results
 }

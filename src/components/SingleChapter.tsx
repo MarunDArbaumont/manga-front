@@ -6,6 +6,7 @@ import type { Chapter } from '../api/chapters'
 import dateFormat from '../helper-function/dateFormat'
 import ReviewComponent from './Review'
 import ReviewForm from './ReviewForm'
+import AddToCollection from './AddToCollection'
 
 function SingleChapter( {id}: { id: string }) {
     const [chapter, setChapter] = useState<Chapter | null>(null)
@@ -39,6 +40,7 @@ function SingleChapter( {id}: { id: string }) {
             <p>first published: {dateFormat(chapter.first_published)}</p>
             <ReviewForm chapter={chapter.id}/>
             <ReviewComponent id={chapter.id.toString()} review_type={"chapter"} />
+            <AddToCollection chapter={chapter.id}/>
         </>
     )
 }

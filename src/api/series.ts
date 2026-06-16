@@ -17,7 +17,7 @@ export type Serie = {
 export type SerieSingle = Serie & {chapters: Chapter[] | []}
 
 export async function fetchAllSeries(): Promise<Serie[]> {
-    const url: string = API_BASE_URL + "series"
+    const url: string = API_BASE_URL + "series/"
     const result = await helperFetch<ResultPagination>(url)
     return (await result).results
 }

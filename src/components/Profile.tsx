@@ -3,6 +3,7 @@ import { fetchProfileByUserID, fetchUserByID, type SingleProfile, type UserType 
 import ErrorMessage from './ErrorMessage'
 import Loading from './Loading'
 import ReviewComponent from './Review'
+import RemoveFromCollection from './RemoveFromCollection'
 
 function ProfileComponent( {id}: { id: string }) {
     const [profile, setProfile] = useState<SingleProfile | null>(null)
@@ -51,6 +52,7 @@ function ProfileComponent( {id}: { id: string }) {
                 {profile.mangas.map((chapter) => (
                     <li key={chapter.id}>
                         <a href={"/chapters/" + chapter.id}>Number {chapter.number}: {chapter.name}</a>
+                        <RemoveFromCollection chapter={chapter.id}/>
                     </li>
                 ))}
             </ul>

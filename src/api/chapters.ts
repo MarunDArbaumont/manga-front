@@ -11,7 +11,7 @@ export type Chapter = {
 }
 
 export async function fetchAllChapters(): Promise<Chapter[]> {
-    const url: string = API_BASE_URL + "chapters"
+    const url: string = API_BASE_URL + "chapters/"
     const result = await helperFetch<ResultPagination>(url)
     return (await result).results
 }
@@ -23,7 +23,7 @@ export async function fetchSingleChapter(id: string): Promise<Chapter> {
 }
 
 export async function ChaptersByMangaId(id: string): Promise<Chapter[]> {
-    const url: string = API_BASE_URL + "chapters?manga=" + id
-   const result = await helperFetch<ResultPagination>(url)
+    const url: string = API_BASE_URL + "chapters?manga=" + id + "/"
+    const result = await helperFetch<ResultPagination>(url)
     return (await result).results
 }

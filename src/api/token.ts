@@ -35,7 +35,7 @@ export async function fetchToken(loginInfo: loginInfoType): Promise<tokenType> {
 export async function fetchUser(loginInfo: loginInfoType): Promise<User> {
     const token = await fetchToken(loginInfo)
 
-    const response = await fetch(API_BASE_URL + "me", {
+    const response = await fetch(API_BASE_URL + "me/", {
         method: "GET",
         headers: {
             Authorization: `Bearer ${token.access}`
@@ -56,7 +56,6 @@ export async function fetchUser(loginInfo: loginInfoType): Promise<User> {
             refresh: token.refresh
         }
     }
-
     return user
 }
 
