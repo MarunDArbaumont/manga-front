@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { fetchReviewsByUser, fetchReviewsChapter, type ReviewType } from '../api/users'
 import ErrorMessage from './ErrorMessage'
 import Loading from './Loading'
+import { useAuth } from '../hooks/useAuth'
+import RemoveReview from './RemoveReview'
 
 function ReviewComponent( {
         id,
@@ -13,6 +15,7 @@ function ReviewComponent( {
     const [reviews, setReviews] = useState<ReviewType[]| null>(null)
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
+    const { user } = useAuth()
 
     useEffect(() => {
         
@@ -39,6 +42,18 @@ function ReviewComponent( {
     if (loading) return <Loading message="Loading series..." />
     if (error) return <ErrorMessage message={error} />
     if (!reviews) return <h2>No reviews</h2>
+    async function loadReview() {
+       if (review_type == "chapter") {
+            const data = await fetchReviewsChapter(id)
+            setReviews(data)
+        } else if (review_type == "user") {
+            const data = await fetchReviewsByUser(id)
+            setReviews(data)
+                }
+    }
+    const reset = () => {
+        loadReview()
+    }
 
     return (
         <>
@@ -54,6 +69,9 @@ function ReviewComponent( {
                         ): null }
                         <p>Rating: {review.rating}/5</p>
                         <p>{review.description}</p>
+                        {user?.id == review.user.id.toString()? (
+                            <RemoveReview review={review.id} resetFunc={reset}/>
+                        ): null}
                     </li>
                 ))}
             </ul>

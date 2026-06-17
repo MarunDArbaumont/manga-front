@@ -3,23 +3,23 @@ import { useAuth } from "../hooks/useAuth"
 import { fectchRefreshToken } from "../api/token"
 
 type Props = {
-    chapter: number
+    review: number
     resetFunc: () => void
 }
 
-function RemoveFromCollection({ chapter, resetFunc }: Props) {
+function RemoveReview({ review, resetFunc }: Props) {
     const { user, setUser } = useAuth()
     
 
     async function postReview(token: string) {
-        return fetch(API_BASE_URL + "profiles/remove_manga/", {
+        return fetch(API_BASE_URL + "reviews/remove_review/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + token,
             },
             body: JSON.stringify({
-                chapter,
+                review,
             }),
         })
     }
@@ -53,7 +53,7 @@ function RemoveFromCollection({ chapter, resetFunc }: Props) {
                 response = await postReview(newAccess)
             }
             if (!response.ok) {
-                throw new Error("Failed to remove from profile")
+                throw new Error("Failed to remove review")
             }
             resetFunc()
         } catch (error) {
@@ -62,9 +62,9 @@ function RemoveFromCollection({ chapter, resetFunc }: Props) {
     }
     return (
         <button onClick={handleSubmit}>
-            Remove chapter
+            Remove review
         </button>
     )
 }
 
-export default RemoveFromCollection
+export default RemoveReview

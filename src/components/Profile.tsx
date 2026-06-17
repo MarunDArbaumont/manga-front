@@ -11,8 +11,7 @@ function ProfileComponent( {id}: { id: string }) {
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
 
-    useEffect(() => {
-        
+    useEffect(() => { 
         async function load() {
             try {
                 const data = await fetchProfileByUserID(id)
@@ -30,18 +29,26 @@ function ProfileComponent( {id}: { id: string }) {
 
     useEffect(() => {
 
-    async function loadUser() {
-        if (!profile) return
-        const results = await fetchUserByID(profile.user.toString())
-        setUserProfile(results)
-    }
+        async function loadUser() {
+            if (!profile) return
+            const results = await fetchUserByID(profile.user.toString())
+            setUserProfile(results)
+        }
 
-    loadUser()
-}, [profile])
+        loadUser()
+    }, [profile])
 
     if (loading) return <Loading message="Loading series..." />
     if (error) return <ErrorMessage message={error} />
     if (!profile) return <h2>This user doesn't have a profile or doesn't exist</h2>
+    
+    async function loadProfile() {
+        const data = await fetchProfileByUserID(id)
+        setProfile(data)
+    }
+    const reset = () => {
+        loadProfile()
+    }
 
     return (
         <>
@@ -52,7 +59,7 @@ function ProfileComponent( {id}: { id: string }) {
                 {profile.mangas.map((chapter) => (
                     <li key={chapter.id}>
                         <a href={"/chapters/" + chapter.id}>Number {chapter.number}: {chapter.name}</a>
-                        <RemoveFromCollection chapter={chapter.id}/>
+                        <RemoveFromCollection chapter={chapter.id} resetFunc={reset}/>
                     </li>
                 ))}
             </ul>
