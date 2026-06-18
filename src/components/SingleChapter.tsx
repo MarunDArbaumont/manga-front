@@ -34,11 +34,19 @@ function SingleChapter( {id}: { id: string }) {
     if (error) return <ErrorMessage message={error} />
     if (!chapter) return <h2>Is null</h2>
 
+    async function loadChapter() {
+        const data = await fetchSingleChapter(id)
+        setChapter(data)
+    }
+    const reset = () => {
+        loadChapter()
+    }
+
     return (
         <>
             <h1>{chapter.name}</h1>
             <p>first published: {dateFormat(chapter.first_published)}</p>
-            <ReviewForm chapter={chapter.id}/>
+            <ReviewForm chapter={chapter.id} resetFunc={reset}/>
             <ReviewComponent id={chapter.id.toString()} review_type={"chapter"} />
             <AddToCollection chapter={chapter.id}/>
         </>

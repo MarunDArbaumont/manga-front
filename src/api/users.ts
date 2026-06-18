@@ -55,7 +55,7 @@ export async function fetchReviewsByUser(user_id: string): Promise<ReviewType[]>
 }
 
 export async function fetchReviewsChapter(chapter_id: string): Promise<ReviewType[]> {
-    const url: string = API_BASE_URL + "reviews?chapter=" + chapter_id
+    const url: string = API_BASE_URL + "reviews/?chapter=" + chapter_id
     const result = await helperFetch<ResultPagination>(url)
     return (await result).results
 }

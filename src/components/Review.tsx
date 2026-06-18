@@ -4,6 +4,7 @@ import ErrorMessage from './ErrorMessage'
 import Loading from './Loading'
 import { useAuth } from '../hooks/useAuth'
 import RemoveReview from './RemoveReview'
+import EditReview from './EditReview'
 
 function ReviewComponent( {
         id,
@@ -70,7 +71,20 @@ function ReviewComponent( {
                         <p>Rating: {review.rating}/5</p>
                         <p>{review.description}</p>
                         {user?.id == review.user.id.toString()? (
-                            <RemoveReview review={review.id} resetFunc={reset}/>
+                            <>
+                                <details>
+                                    <summary>Edit review</summary>
+                                    <EditReview review={
+                                        {
+                                            id:review.id,
+                                            description: review.description,
+                                            rating: review.rating.toString()
+                                        }
+                                        } 
+                                        resetFunc={reset}/>
+                                </details>
+                                <RemoveReview review={review.id} resetFunc={reset}/>
+                            </>
                         ): null}
                     </li>
                 ))}

@@ -1,18 +1,22 @@
 import { useState } from "react"
 import API_BASE_URL from "../api/variables"
-import { useNavigate } from "react-router-dom"
 import { fectchRefreshToken } from "../api/token"
 import { useAuth } from "../hooks/useAuth"
 
-function ReviewForm({chapter}: {chapter: number}) {
+
+type Props = {
+    chapter: number
+    resetFunc: () => void
+}
+
+function ReviewForm({ chapter, resetFunc }: Props) {
     const { user, setUser } = useAuth()
     const [rating, setRating] = useState("")
     const [description, setDescription] = useState("")
-    const navigate = useNavigate()
 
 
     async function postReview(token: string) {
-        return fetch(API_BASE_URL + "reviews", {
+        return fetch(API_BASE_URL + "reviews/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -60,7 +64,7 @@ function ReviewForm({chapter}: {chapter: number}) {
             if (!response.ok) {
                 throw new Error("Failed to create review")
             }
-            navigate(`/chapters/${chapter}`)
+            resetFunc()
         } catch (error) {
             console.error(error)
         }

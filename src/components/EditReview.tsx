@@ -1,32 +1,43 @@
 import API_BASE_URL from "../api/variables"
 import { useAuth } from "../hooks/useAuth"
 import { fectchRefreshToken } from "../api/token"
+import { useState } from "react"
 
 type Props = {
-    review: number
+    review: {
+        id: number
+        rating: string
+        description: string
+    }
     resetFunc: () => void
 }
 
-function RemoveReview({ review, resetFunc }: Props) {
+function EditReview({ review, resetFunc }: Props) {
     const { user, setUser } = useAuth()
+    const [description, setDescription] = useState(review.description)
+    const [rating, setRating] = useState(review.rating)
     
 
     async function postReview(token: string) {
-        return fetch(API_BASE_URL + "reviews/" + review + "/", {
-            method: "DELETE",
+        return fetch(API_BASE_URL + "reviews/" + review.id + "/", {
+            method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + token,
             },
             body: JSON.stringify({
-                review,
+                description,
+                rating,
             }),
         })
     }
 
-    const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
+const handleSubmit = async (
+        event: React.FormEvent<HTMLFormElement>
+    ) => {
         event.preventDefault()
-        try {          
+        try {
+            
             if (!user) throw new Error("No user authenticated")
             const access = user.authToken?.access
             console.log(access)
@@ -53,7 +64,7 @@ function RemoveReview({ review, resetFunc }: Props) {
                 response = await postReview(newAccess)
             }
             if (!response.ok) {
-                throw new Error("Failed to remove review")
+                throw new Error("Failed to create review")
             }
             resetFunc()
         } catch (error) {
@@ -61,10 +72,29 @@ function RemoveReview({ review, resetFunc }: Props) {
         }
     }
     return (
-        <button onClick={handleSubmit}>
-            Remove review
-        </button>
+        <>
+            <form onSubmit={handleSubmit}>
+                <label>Rating
+                    <input 
+                    type="number"
+                    min="1"
+                    max="5"
+                    value={rating}
+                    onChange={(event) => setRating(event.target.value)}
+                    />
+                </label>
+                <label>Description
+                    <input 
+                    
+                    type="text"
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
+                    />
+                </label>
+                <button type="submit">Submit review</button>
+            </form>
+        </>
     )
 }
 
-export default RemoveReview
+export default EditReview
