@@ -70,6 +70,9 @@ function ReviewComponent( {
                         ): null }
                         <p>Rating: {review.rating}/5</p>
                         <p>{review.description}</p>
+                        {review.is_edited? (
+                            <p>[Edited]</p>
+                        ): null}
                         {user?.id == review.user.id.toString()? (
                             <>
                                 <details>

@@ -20,6 +20,7 @@ export type ReviewType = {
     rating: number
     description: string
     chapter: Chapter
+    is_edited: boolean
 }
 
 export type SingleProfile = Profile & {mangas: Chapter[] | []}

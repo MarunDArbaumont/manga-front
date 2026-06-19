@@ -4,8 +4,11 @@ import ErrorMessage from './ErrorMessage'
 import Loading from './Loading'
 import ReviewComponent from './Review'
 import RemoveFromCollection from './RemoveFromCollection'
+import { useAuth } from '../hooks/useAuth'
+import EditProfileBio from './EditProfileBio'
 
 function ProfileComponent( {id}: { id: string }) {
+    const { user } = useAuth()
     const [profile, setProfile] = useState<SingleProfile | null>(null)
     const [profileUser, setUserProfile] = useState<UserType | null>(null)
     const [error, setError] = useState<string | null>(null)
@@ -54,6 +57,20 @@ function ProfileComponent( {id}: { id: string }) {
         <>
             <h1>Welcome to {profileUser?.username}'s profile</h1>
             <p>Bio: {profile.bio}</p>
+            {user && profile.user.toString() == user.id? (
+                <details>
+                    <summary>Edit bio</summary>
+                    <EditProfileBio 
+                    profile={
+                        {
+                            id: profile.id,
+                            bio: profile.bio
+                        }
+                    }
+                    resetFunc={reset}
+                    />
+                </details>
+            ): null}
             <h3>Collection: </h3>
             <ul>
                 {profile.mangas.map((chapter) => (
