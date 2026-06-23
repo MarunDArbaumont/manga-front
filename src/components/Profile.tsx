@@ -6,6 +6,7 @@ import ReviewComponent from './Review'
 import RemoveFromCollection from './RemoveFromCollection'
 import { useAuth } from '../hooks/useAuth'
 import EditProfileBio from './EditProfileBio'
+import EditProfilePicture from './EditProfilePicture'
 
 function ProfileComponent( {id}: { id: string }) {
     const { user } = useAuth()
@@ -53,11 +54,24 @@ function ProfileComponent( {id}: { id: string }) {
         loadProfile()
     }
 
+    const isConnected = user && profile.user.toString() == user.id
+    console.log(profile.profile_picture)
     return (
         <>
             <h1>Welcome to {profileUser?.username}'s profile</h1>
+            <p>Profile picture</p>
+            <div className="pp-container">
+                {profile.profile_picture != null? (
+                    <img src={profile.profile_picture} className="profile-picture"/>
+                ): (
+                    <img src="/src/assets/img/Pandaman_Oda.jpg" alt="default profile picture" className="profile-picture"/>
+                )}
+            </div>
+            {isConnected? (
+                    <EditProfilePicture profile={profile} resetFunc={reset}/>
+                ): null}
             <p>Bio: {profile.bio}</p>
-            {user && profile.user.toString() == user.id? (
+            {isConnected? (
                 <details>
                     <summary>Edit bio</summary>
                     <EditProfileBio 

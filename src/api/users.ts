@@ -7,6 +7,7 @@ export type Profile = {
     id: number
     user: number
     bio: string
+    profile_picture: string
 }
 
 export type UserType = {
