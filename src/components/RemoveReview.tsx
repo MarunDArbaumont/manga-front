@@ -29,7 +29,6 @@ function RemoveReview({ review, resetFunc }: Props) {
         try {          
             if (!user) throw new Error("No user authenticated")
             const access = user.authToken?.access
-            console.log(access)
             if (!access) {
                 throw new Error("No access token")
             }

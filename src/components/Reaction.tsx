@@ -1,22 +1,41 @@
 import API_BASE_URL from "../api/variables"
-import { useNavigate } from "react-router-dom"
 import { useAuth } from "../hooks/useAuth"
 import { fectchRefreshToken } from "../api/token"
 
-function AddToCollection({chapter}: {chapter: number}) {
-    const navigate = useNavigate()
+type Props = {
+    review: number
+    resetFunc: () => void
+    type: string
+}
+
+function Reaction({ review, resetFunc, type }: Props) {
     const { user, setUser } = useAuth()
     
 
-    async function postReview(token: string) {
-        return fetch(API_BASE_URL + "profiles/add_manga/", {
+    async function like(token: string) {
+        return fetch(API_BASE_URL + "reviews/" + review + "/like/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + token,
             },
             body: JSON.stringify({
-                chapter,
+                user,
+                review,
+            }),
+        })
+    }
+
+    async function dislike(token: string) {
+        return fetch(API_BASE_URL + "reviews/" + review + "/dislike/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token,
+            },
+            body: JSON.stringify({
+                user,
+                review,
             }),
         })
     }
@@ -29,7 +48,7 @@ function AddToCollection({chapter}: {chapter: number}) {
             if (!access) {
                 throw new Error("No access token")
             }
-            let response = await postReview(access)
+            let response = type == "Like"? await like(access): await dislike(access)
             
             if (response.status === 401) {
                 const refresh = user.authToken?.refresh
@@ -46,21 +65,21 @@ function AddToCollection({chapter}: {chapter: number}) {
                     },
                 })
 
-                response = await postReview(newAccess)
+                response = type == "Like"? await like(access): await dislike(access)
             }
             if (!response.ok) {
-                throw new Error("Failed to add to profile")
+                throw new Error("Failed to remove review")
             }
-            navigate(`/profile/${user.id}`)
+            resetFunc()
         } catch (error) {
             console.error(error)
         }
     }
     return (
         <button onClick={handleSubmit}>
-            Add this chapter to your collection
+            {type}
         </button>
     )
 }
 
-export default AddToCollection
+export default Reaction

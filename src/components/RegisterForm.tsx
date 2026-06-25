@@ -15,7 +15,7 @@ function RegisterForm() {
             password: password,
             email: email,
         }
-        fetch(API_BASE_URL + "users", {
+        fetch(API_BASE_URL + "users/", {
             method: "POST",
             headers: {
                 "Content-Type": "Application/JSON",

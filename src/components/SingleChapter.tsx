@@ -46,7 +46,8 @@ function SingleChapter( {id}: { id: string }) {
         <>
             <h1>{chapter.name}</h1>
             <p>first published: {dateFormat(chapter.first_published)}</p>
-            <ReviewForm chapter={chapter.id} resetFunc={reset}/>
+            <ReviewForm chapter={chapter.id} parent={undefined} resetFunc={reset}/>
+            <h2>Reviews:</h2>
             <ReviewComponent id={chapter.id.toString()} review_type={"chapter"} />
             <AddToCollection chapter={chapter.id}/>
         </>

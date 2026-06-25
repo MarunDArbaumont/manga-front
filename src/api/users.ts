@@ -22,6 +22,9 @@ export type ReviewType = {
     description: string
     chapter: Chapter
     is_edited: boolean
+    likes: number
+    dislikes: number
+    parent: number
 }
 
 export type SingleProfile = Profile & {mangas: Chapter[] | []}
@@ -58,6 +61,12 @@ export async function fetchReviewsByUser(user_id: string): Promise<ReviewType[]>
 
 export async function fetchReviewsChapter(chapter_id: string): Promise<ReviewType[]> {
     const url: string = API_BASE_URL + "reviews/?chapter=" + chapter_id
+    const result = await helperFetch<ResultPagination>(url)
+    return (await result).results
+}
+
+export async function fetchReviewsParent(parent_id: string): Promise<ReviewType[]> {
+    const url: string = API_BASE_URL + "reviews/?parent=" + parent_id
     const result = await helperFetch<ResultPagination>(url)
     return (await result).results
 }

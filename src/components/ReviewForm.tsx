@@ -5,14 +5,16 @@ import { useAuth } from "../hooks/useAuth"
 
 
 type Props = {
-    chapter: number
+    chapter?: number
+    parent?: string
     resetFunc: () => void
 }
 
-function ReviewForm({ chapter, resetFunc }: Props) {
+function ReviewForm({ chapter, parent, resetFunc }: Props) {
     const { user, setUser } = useAuth()
     const [rating, setRating] = useState("")
     const [description, setDescription] = useState("")
+
 
 
     async function postReview(token: string) {
@@ -23,9 +25,10 @@ function ReviewForm({ chapter, resetFunc }: Props) {
                 "Authorization": "Bearer " + token,
             },
             body: JSON.stringify({
-                rating,
+                rating: parent ? null : rating,
                 description,
                 chapter,
+                parent,
             }),
         })
     }
@@ -38,7 +41,6 @@ function ReviewForm({ chapter, resetFunc }: Props) {
             
             if (!user) throw new Error("No user authenticated")
             const access = user.authToken?.access
-            console.log(access)
             if (!access) {
                 throw new Error("No access token")
             }
@@ -73,15 +75,17 @@ function ReviewForm({ chapter, resetFunc }: Props) {
         <>
             <h2>Add review</h2>
             <form onSubmit={handleSubmit}>
-                <label>Rating
-                    <input 
-                    type="number"
-                    min="1"
-                    max="5"
-                    value={rating}
-                    onChange={(event) => setRating(event.target.value)}
-                    />
-                </label>
+                {parent == null? (
+                    <label>Rating
+                        <input 
+                        type="number"
+                        min="1"
+                        max="5"
+                        value={rating}
+                        onChange={(event) => setRating(event.target.value)}
+                        />
+                    </label>
+                ): null}
                 <label>Description
                     <input 
                     type="text"

@@ -6,7 +6,7 @@ import { useState } from "react"
 type Props = {
     review: {
         id: number
-        rating: string
+        rating?: string
         description: string
     }
     resetFunc: () => void
@@ -40,7 +40,6 @@ const handleSubmit = async (
             
             if (!user) throw new Error("No user authenticated")
             const access = user.authToken?.access
-            console.log(access)
             if (!access) {
                 throw new Error("No access token")
             }
@@ -74,15 +73,17 @@ const handleSubmit = async (
     return (
         <>
             <form onSubmit={handleSubmit}>
-                <label>Rating
-                    <input 
-                    type="number"
-                    min="1"
-                    max="5"
-                    value={rating}
-                    onChange={(event) => setRating(event.target.value)}
-                    />
-                </label>
+                {rating? (
+                    <label>Rating
+                        <input 
+                        type="number"
+                        min="1"
+                        max="5"
+                        value={rating}
+                        onChange={(event) => setRating(event.target.value)}
+                        />
+                    </label>
+                ): null}
                 <label>Description
                     <input 
                     

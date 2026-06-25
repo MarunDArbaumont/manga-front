@@ -67,3 +67,8 @@ a {
     object-position: 40% 0%;
     border-radius: 50px;
 }
+
+.dislike-div, .like-div {
+    display: flex;
+    gap: 1rem;
+}

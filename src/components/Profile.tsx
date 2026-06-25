@@ -90,7 +90,9 @@ function ProfileComponent( {id}: { id: string }) {
                 {profile.mangas.map((chapter) => (
                     <li key={chapter.id}>
                         <a href={"/chapters/" + chapter.id}>Number {chapter.number}: {chapter.name}</a>
-                        <RemoveFromCollection chapter={chapter.id} resetFunc={reset}/>
+                        {isConnected? (
+                            <RemoveFromCollection chapter={chapter.id} resetFunc={reset}/>
+                        ): null}
                     </li>
                 ))}
             </ul>

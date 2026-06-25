@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react'
-import { fetchReviewsByUser, fetchReviewsChapter, type ReviewType } from '../api/users'
+import { fetchReviewsByUser, fetchReviewsChapter, fetchReviewsParent, type ReviewType } from '../api/users'
 import ErrorMessage from './ErrorMessage'
 import Loading from './Loading'
 import { useAuth } from '../hooks/useAuth'
 import RemoveReview from './RemoveReview'
 import EditReview from './EditReview'
+import Reaction from './Reaction'
+import ReviewForm from './ReviewForm'
 
-function ReviewComponent( {
-        id,
-        review_type,
-    }: {
-        id: string
-        review_type: string
-    }) {
+type Props = {
+    id: string
+    review_type: string
+}
+
+function ReviewComponent({id, review_type,}: Props) {
     const [reviews, setReviews] = useState<ReviewType[]| null>(null)
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
@@ -27,6 +28,9 @@ function ReviewComponent( {
                     setReviews(data)
                 } else if (review_type == "user") {
                     const data = await fetchReviewsByUser(id)
+                    setReviews(data)
+                } else if (review_type == "children") {
+                    const data = await fetchReviewsParent(id)
                     setReviews(data)
                 }
             } catch (err) {
@@ -50,7 +54,10 @@ function ReviewComponent( {
         } else if (review_type == "user") {
             const data = await fetchReviewsByUser(id)
             setReviews(data)
-                }
+        } else if (review_type == "children") {
+            const data = await fetchReviewsParent(id)
+            setReviews(data)
+        }
     }
     const reset = () => {
         loadReview()
@@ -58,7 +65,6 @@ function ReviewComponent( {
 
     return (
         <>
-            <h2>Reviews:</h2>
             <ul>
             {reviews.map((review) => (
                     <li key={review.id} className='single-review'>
@@ -68,12 +74,22 @@ function ReviewComponent( {
                         {review_type == "chapter" ? (
                             <p>User: <a href={`/profile/${review.user.id}`}>{review.user.username}</a></p>
                         ): null }
-                        <p>Rating: {review.rating}/5</p>
+                        {review_type != "children"? (
+                            <p>Rating: {review.rating}/5</p>
+                        ): null}
                         <p>{review.description}</p>
+                        <div className="like-div">
+                            <p>Likes: {review.likes}</p>
+                            <Reaction review={review.id} resetFunc={reset} type="Like"/>
+                        </div>
+                        <div className="dislike-div">
+                            <p>Dislikes: {review.dislikes}</p>
+                            <Reaction review={review.id} resetFunc={reset} type="Dislike"/>
+                        </div>
                         {review.is_edited? (
                             <p>[Edited]</p>
                         ): null}
-                        {user?.id == review.user.id.toString()? (
+                        {user?.id == review.user.id.toString()?(
                             <>
                                 <details>
                                     <summary>Edit review</summary>
@@ -81,7 +97,7 @@ function ReviewComponent( {
                                         {
                                             id:review.id,
                                             description: review.description,
-                                            rating: review.rating.toString()
+                                            rating: review.rating?.toString() ?? "",
                                         }
                                         } 
                                         resetFunc={reset}/>
@@ -89,6 +105,8 @@ function ReviewComponent( {
                                 <RemoveReview review={review.id} resetFunc={reset}/>
                             </>
                         ): null}
+                        <ReviewForm chapter={undefined} parent={review.id.toString()} resetFunc={reset} />
+                        <ReviewComponent id={review.id.toString()} review_type="children" />
                     </li>
                 ))}
             </ul>
