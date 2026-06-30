@@ -4,6 +4,7 @@ import type { SerieSingle } from "../api/series"
 import ErrorMessage from './ErrorMessage'
 import Loading from './Loading'
 import dateFormat from '../helper-function/dateFormat'
+import { Link } from "react-router-dom"
 
 function SingleSerie( {id}: { id: string }) {
     const [serie, setSerie] = useState<SerieSingle | null>(null)
@@ -44,7 +45,7 @@ function SingleSerie( {id}: { id: string }) {
                 <ul>
                 {serie.chapters.map((chapter) => (
                     <li key={chapter.id}>
-                        <a href={"/chapters/" + chapter.id}>Chapter {chapter.number}: {chapter.name}</a>
+                        <Link to={`/chapters/${chapter.id}`}>Chapter {chapter.number}: {chapter.name}</Link>
                     </li>
                 ))}
                 </ul>

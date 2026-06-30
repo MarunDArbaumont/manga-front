@@ -7,6 +7,7 @@ import RemoveReview from './RemoveReview'
 import EditReview from './EditReview'
 import Reaction from './Reaction'
 import ReviewForm from './ReviewForm'
+import { Link } from "react-router-dom"
 
 type Props = {
     id: string
@@ -66,13 +67,14 @@ function ReviewComponent({id, review_type,}: Props) {
     return (
         <>
             <ul>
-            {reviews.map((review) => (
+            {reviews.map((review) => 
+                review_type == "user" && review.chapter == undefined? null: (
                     <li key={review.id} className='single-review'>
                         {review_type == "user" ? (
-                            <p>Chapter: <a href={`/chapters/${review.chapter.id}`}>{review.chapter.name}</a></p>
+                            <p>Chapter: <Link to={`/chapters/${review.chapter?.id}`}>{review.chapter?.name}</Link></p>
                         ): null }
                         {review_type == "chapter" ? (
-                            <p>User: <a href={`/profile/${review.user.id}`}>{review.user.username}</a></p>
+                            <p>User: <Link to={`/profile/${review.user.id}`}>{review.user.username}</Link></p>
                         ): null }
                         {review_type != "children"? (
                             <p>Rating: {review.rating}/5</p>
@@ -108,7 +110,8 @@ function ReviewComponent({id, review_type,}: Props) {
                         <ReviewForm chapter={undefined} parent={review.id.toString()} resetFunc={reset} />
                         <ReviewComponent id={review.id.toString()} review_type="children" />
                     </li>
-                ))}
+            )
+                )}
             </ul>
         </>
     )

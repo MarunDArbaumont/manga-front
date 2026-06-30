@@ -7,6 +7,7 @@ import RemoveFromCollection from './RemoveFromCollection'
 import { useAuth } from '../hooks/useAuth'
 import EditProfileBio from './EditProfileBio'
 import EditProfilePicture from './EditProfilePicture'
+import { Link } from "react-router-dom"
 
 function ProfileComponent( {id}: { id: string }) {
     const { user } = useAuth()
@@ -89,7 +90,7 @@ function ProfileComponent( {id}: { id: string }) {
             <ul>
                 {profile.mangas.map((chapter) => (
                     <li key={chapter.id}>
-                        <a href={"/chapters/" + chapter.id}>Number {chapter.number}: {chapter.name}</a>
+                        <Link to={`/chapters/${chapter.id}`}>Number {chapter.number}: {chapter.name}</Link>
                         {isConnected? (
                             <RemoveFromCollection chapter={chapter.id} resetFunc={reset}/>
                         ): null}

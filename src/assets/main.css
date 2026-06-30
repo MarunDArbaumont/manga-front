@@ -7,6 +7,9 @@ p, a, h1, h2, h3 {
     font-family: roboto;
 }
 
+li {
+    list-style: none;
+}
 nav {
     display: flex;
     justify-content: space-between;
@@ -24,6 +27,7 @@ nav div {
 
 body {
     background-color: #6d6d6d;
+    padding: 0 5rem;
 }
 
 button {
@@ -71,4 +75,31 @@ a {
 .dislike-div, .like-div {
     display: flex;
     gap: 1rem;
+}
+.serie-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.serie-list-item {
+    width: 10rem;
+    height: 14rem;
+    display: flex;
+    background-repeat: no-repeat;
+    background-size: auto;
+    background-size: 100%;
+}
+
+.serie-list-item h3 {
+    display: none;
+}
+
+.hovered h3{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    backdrop-filter: blur(10px);
 }

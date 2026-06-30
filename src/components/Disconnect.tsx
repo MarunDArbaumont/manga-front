@@ -1,6 +1,7 @@
 
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../hooks/useAuth"
+import { Link } from "react-router-dom"
 
 function Disconnect() {
     const { logout } = useAuth()
@@ -11,7 +12,7 @@ function Disconnect() {
     }
 
     return (
-        <a className="disconnect" onClick={handleClick}>Disconnect</a>
+        <Link className="disconnect" onClick={handleClick} to={"/"}>Disconnect</Link>
     )
 }
 

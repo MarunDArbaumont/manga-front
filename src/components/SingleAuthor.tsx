@@ -4,6 +4,7 @@ import { fetchSingleSerie, type Serie } from "../api/series"
 import ErrorMessage from './ErrorMessage'
 import Loading from './Loading'
 import dateFormat from "./../helper-function/dateFormat"
+import { Link } from "react-router-dom"
 
 function SingleAuthor( {id}: { id: string }) {
     const [author, setAuthor] = useState<Author | null>(null)
@@ -58,7 +59,7 @@ function SingleAuthor( {id}: { id: string }) {
             <h3>Mangas:</h3>
             <ul>
                 {series.map((serie) => (
-                    <li key={serie.id}><a href={"/series/" + serie.id}>{serie.title}</a></li>
+                    <li key={serie.id}><Link to={`/series/${serie.id}`}>{serie.title}</Link></li>
                 ))}
             </ul>
         </>

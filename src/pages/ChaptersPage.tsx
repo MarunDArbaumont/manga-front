@@ -1,4 +1,4 @@
-import AllChapters from "../components/AllChapters"
+import AllChapters from "../components/Chapters"
 
 function ChaptersPage() {
     return (

@@ -1,4 +1,4 @@
-import AllAuhtors from "../components/AllAuthors"
+import AllAuhtors from "../components/Authors"
 
 function AuthorsPage() {
     return (

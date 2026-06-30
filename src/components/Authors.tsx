@@ -1,19 +1,20 @@
 import { useEffect, useState } from 'react'
-import { fetchAllChapters } from "../api/chapters"
-import type { Chapter } from "../api/chapters"
+import { fetchAllAuthors } from "../api/authors"
+import type { Author } from "../api/authors"
 import Loading from './Loading'
 import ErrorMessage from './ErrorMessage'
+import { Link } from "react-router-dom"
 
-function AllChapters() {
-    const [chapters, setChapters] = useState<Chapter[]>([])
+function AllAuhtors() {
+    const [authors, setAuthors] = useState<Author[]>([])
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
 
-   useEffect(() => {
+    useEffect(() => {
         async function load() {
             try {
-                const data = await fetchAllChapters()
-                setChapters(data)
+                const data = await fetchAllAuthors()
+                setAuthors(data)
             } catch (err) {
                 if (err instanceof Error) {
                     setError(err.message)
@@ -25,19 +26,19 @@ function AllChapters() {
         load()
     }, [])
 
-    if (loading) return <Loading message="Loading chapters..." />
+    if (loading) return <Loading message="Loading authors..." />
     if (error) return <ErrorMessage message={error} />
-
+    
     return (
         <>
-            <h2>Manga chapters</h2>
-            {chapters.map((chapter) => (
-                <a key={chapter.id} href={"/chapters/" + chapter.id}>
-                    <h3>{chapter.name}</h3>
-                </a>
+            <h2>Manga auhtors</h2>
+            {authors.map((author) => (
+                <Link key={author.id} to={`/authors/${author.id}`}>
+                    <h3>{author.name}</h3>
+                </Link>
             ))}
         </>
   )
 }
 
-export default AllChapters
+export default AllAuhtors

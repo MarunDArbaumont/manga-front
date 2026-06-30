@@ -20,11 +20,11 @@ export type ReviewType = {
     user: UserType
     rating: number
     description: string
-    chapter: Chapter
+    chapter?: Chapter
     is_edited: boolean
     likes: number
     dislikes: number
-    parent: number
+    parent?: number
 }
 
 export type SingleProfile = Profile & {mangas: Chapter[] | []}

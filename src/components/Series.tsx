@@ -3,8 +3,9 @@ import { fetchAllSeries } from "../api/series"
 import type { Serie } from "../api/series"
 import ErrorMessage from './ErrorMessage'
 import Loading from './Loading'
+import { Link } from "react-router-dom"
 
-function AllSeries() {
+function Series() {
     const [series, setSeries] = useState<Serie[]>([])
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
@@ -29,15 +30,21 @@ function AllSeries() {
     if (error) return <ErrorMessage message={error} />
 
     return (
-        <>
-            <h2>Manga series</h2>
+        <div className="serie-list">
             {series.map((serie) => (
-                <a key={serie.id} href={"/series/" + serie.id}>
+                <Link 
+                onMouseOver={(e) => e.currentTarget.classList.add("hovered")}
+                onMouseLeave={(e) => e.currentTarget.classList.remove("hovered")}
+                key={serie.id}
+                to={`/series/${serie.id}`}
+                className="serie-list-item"
+                style={{backgroundImage: `url(${serie.cover ?? "/src/assets/img/Pandaman_Oda.jpg"})`}}
+                >
                     <h3>{serie.title}</h3>
-                </a>
+                </Link>
             ))}
-        </>
+        </div>
   )
 }
 
-export default AllSeries
+export default Series
