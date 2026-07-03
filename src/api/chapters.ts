@@ -1,13 +1,14 @@
 import API_BASE_URL from "./variables"
 import { helperFetch } from "./helper"
 import type { ResultPagination } from "./helper"
+import type { Serie } from "./series"
 
 export type Chapter = {
     id: number
     number: number
     name: string
     first_published: string
-    manga_id: number
+    manga: Serie
 }
 
 export async function fetchAllChapters(): Promise<Chapter[]> {

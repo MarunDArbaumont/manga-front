@@ -13,7 +13,7 @@ function RemoveFromCollection({ chapter, resetFunc }: Props) {
 
     async function postReview(token: string) {
         return fetch(API_BASE_URL + "profiles/remove_manga/", {
-            method: "POST",
+            method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + token,

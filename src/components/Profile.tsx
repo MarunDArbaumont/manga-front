@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { fetchProfileByUserID, fetchUserByID, type SingleProfile, type UserType } from '../api/users'
 import ErrorMessage from './ErrorMessage'
 import Loading from './Loading'
@@ -8,6 +8,15 @@ import { useAuth } from '../hooks/useAuth'
 import EditProfileBio from './EditProfileBio'
 import EditProfilePicture from './EditProfilePicture'
 import { Link } from "react-router-dom"
+import type { Serie } from '../api/series'
+import type { Chapter } from '../api/chapters'
+
+type ProfileCollection = {
+    [mangaId: number]: {
+        serie: Serie
+        chapters: Chapter[];
+    };
+};
 
 function ProfileComponent( {id}: { id: string }) {
     const { user } = useAuth()
@@ -15,7 +24,7 @@ function ProfileComponent( {id}: { id: string }) {
     const [profileUser, setUserProfile] = useState<UserType | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
-
+    
     useEffect(() => { 
         async function load() {
             try {
@@ -39,8 +48,26 @@ function ProfileComponent( {id}: { id: string }) {
             const results = await fetchUserByID(profile.user.toString())
             setUserProfile(results)
         }
-
         loadUser()
+    }, [profile])
+
+    const collection = useMemo(() => {
+        const grouped: ProfileCollection = {}
+
+        if (!profile) return grouped
+
+        profile.mangas.forEach((chapter) => {
+            if (!grouped[chapter.manga.id]) {
+                grouped[chapter.manga.id] = {
+                    serie: chapter.manga,
+                    chapters: [],
+                };
+            }
+
+            grouped[chapter.manga.id].chapters.push(chapter)
+        });
+
+        return grouped
     }, [profile])
 
     if (loading) return <Loading message="Loading series..." />
@@ -56,7 +83,6 @@ function ProfileComponent( {id}: { id: string }) {
     }
 
     const isConnected = user && profile.user.toString() == user.id
-    console.log(profile.profile_picture)
     return (
         <>
             <h1>Welcome to {profileUser?.username}'s profile</h1>
@@ -88,15 +114,23 @@ function ProfileComponent( {id}: { id: string }) {
             ): null}
             <h3>Collection: </h3>
             <ul>
-                {profile.mangas.map((chapter) => (
-                    <li key={chapter.id}>
-                        <Link to={`/chapters/${chapter.id}`}>Number {chapter.number}: {chapter.name}</Link>
-                        {isConnected? (
-                            <RemoveFromCollection chapter={chapter.id} resetFunc={reset}/>
-                        ): null}
-                    </li>
-                ))}
-            </ul>
+            {Object.values(collection).map((item) => (
+                <li key={item.serie.id}>
+                    <h2><Link to={`/series/${item.serie.id}`}>{item.serie.title}</Link></h2>
+
+                    <ul>
+                        {item.chapters.map((chapter) => (
+                            <li key={chapter.id}>
+                                <Link to={`/chapters/${chapter.id}`}>Chapter {chapter.number}: {chapter.name}</Link>
+                                {isConnected? (
+                                    <RemoveFromCollection chapter={chapter.id} resetFunc={reset}/>
+                                ): null}
+                            </li>
+                        ))}
+                    </ul>
+                </li>
+            ))}
+        </ul>
             <ReviewComponent id={profile.user.toString()} review_type={"user"} />
         </>
     )
