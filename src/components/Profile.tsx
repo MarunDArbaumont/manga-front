@@ -86,7 +86,6 @@ function ProfileComponent( {id}: { id: string }) {
     return (
         <>
             <h1>Welcome to {profileUser?.username}'s profile</h1>
-            <p>Profile picture</p>
             <div className="pp-container">
                 {profile.profile_picture != null? (
                     <img src={profile.profile_picture} className="profile-picture"/>
@@ -97,7 +96,7 @@ function ProfileComponent( {id}: { id: string }) {
             {isConnected? (
                     <EditProfilePicture profile={profile} resetFunc={reset}/>
                 ): null}
-            <p>Bio: {profile.bio}</p>
+            <p>{profile.bio}</p>
             {isConnected? (
                 <details>
                     <summary>Edit bio</summary>
@@ -131,6 +130,8 @@ function ProfileComponent( {id}: { id: string }) {
                 </li>
             ))}
         </ul>
+            <h2>Reviews:</h2>
+            <hr />
             <ReviewComponent id={profile.user.toString()} review_type={"user"} />
         </>
     )

@@ -34,14 +34,14 @@ function SingleSerie( {id}: { id: string }) {
 
     return (
         <>
-            <h3>{serie.title}</h3>
+            <h1>{serie.title}</h1>
             {serie.cover ? (
                 <img src={serie.cover} className='serie-cover' />
             ): null}
             <p>first published: {dateFormat(serie.first_published)}</p>
             <p>{serie.genre}</p>
             <div>
-                <h3>Chapters:</h3>
+                <h2>Chapters:</h2>
                 <ul>
                 {serie.chapters.map((chapter) => (
                     <li key={chapter.id}>

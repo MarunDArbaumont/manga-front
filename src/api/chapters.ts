@@ -9,6 +9,8 @@ export type Chapter = {
     name: string
     first_published: string
     manga: Serie
+    average_rating: number
+    count_rating: number
 }
 
 export async function fetchAllChapters(): Promise<Chapter[]> {

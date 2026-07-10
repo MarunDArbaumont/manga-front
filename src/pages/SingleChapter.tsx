@@ -10,7 +10,9 @@ function SingleChapterPage() {
     }
 
     return (
-        <SingleChapter id={id} />
+        <div className="content">
+            <SingleChapter id={id} />
+        </div>
     )
 }
 

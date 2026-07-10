@@ -73,9 +73,10 @@ const handleSubmit = async (
     }
     return (
         <>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="file-form">
                     <input 
                     type="file"
+                    id="file"
                     onChange={(event) => {
                         const file = event.target.files?.[0]
                         if (file) {
@@ -84,6 +85,7 @@ const handleSubmit = async (
                     }}
                     accept="image/png, image/jpeg, image/jpg" 
                     />
+                    <label htmlFor="file">Update profile picture</label>
                 <button type="submit">Update profile picture</button>
             </form>
         </>

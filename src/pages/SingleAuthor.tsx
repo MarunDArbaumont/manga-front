@@ -10,7 +10,9 @@ function SingleAuthorPage() {
     }
 
     return (
-        <SingleAuthor id={id} />
+        <div className="content">
+            <SingleAuthor id={id} />
+        </div>
     )
 }
 

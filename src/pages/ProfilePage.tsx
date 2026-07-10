@@ -10,7 +10,9 @@ function ProfilePage() {
     }
 
     return (
-        <ProfileComponent id={id} />
+        <div className="content">
+            <ProfileComponent id={id} />
+        </div>
     )
 }
 

@@ -8,13 +8,15 @@ import EditReview from './EditReview'
 import Reaction from './Reaction'
 import ReviewForm from './ReviewForm'
 import { Link } from "react-router-dom"
+import { MEDIA_BASE_URL } from '../api/variables'
 
 type Props = {
     id: string
     review_type: string
+    refresh?: number
 }
 
-function ReviewComponent({id, review_type,}: Props) {
+function ReviewComponent({id, review_type, refresh}: Props) {
     const [reviews, setReviews] = useState<ReviewType[]| null>(null)
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
@@ -43,7 +45,7 @@ function ReviewComponent({id, review_type,}: Props) {
             }
         }
         load()
-    }, [id, review_type])
+    }, [id, review_type, refresh])
 
     if (loading) return <Loading message="Loading series..." />
     if (error) return <ErrorMessage message={error} />
@@ -69,24 +71,31 @@ function ReviewComponent({id, review_type,}: Props) {
             <ul>
             {reviews.map((review) => 
                 review_type == "user" && review.chapter == undefined? null: (
+                    <>
                     <li key={review.id} className='single-review'>
+                        {review_type == "children" ? (
+                            <p>Response to the above</p>
+                        ): null }
                         {review_type == "user" ? (
                             <p>Chapter: <Link to={`/chapters/${review.chapter?.id}`}>{review.chapter?.name}</Link></p>
                         ): null }
-                        {review_type == "chapter" ? (
-                            <p>User: <Link to={`/profile/${review.user.id}`}>{review.user.username}</Link></p>
-                        ): null }
+                            <Link to={`/profile/${review.user.id}`} className="review-user">
+                                <img src={MEDIA_BASE_URL + review.user.picture.slice(1)}/>
+                                {review.user.username}
+                            </Link>
                         {review_type != "children"? (
                             <p>Rating: {review.rating}/5</p>
                         ): null}
                         <p>{review.description}</p>
-                        <div className="like-div">
-                            <p>Likes: {review.likes}</p>
-                            <Reaction review={review.id} resetFunc={reset} type="Like"/>
-                        </div>
-                        <div className="dislike-div">
-                            <p>Dislikes: {review.dislikes}</p>
-                            <Reaction review={review.id} resetFunc={reset} type="Dislike"/>
+                        <div className="reaction">
+                            <div className="like-div">
+                                <p>{review.likes}</p>
+                                <Reaction review={review.id} resetFunc={reset} type="Like"/>
+                            </div>
+                            <div className="dislike-div">
+                                <p>{review.dislikes}</p>
+                                <Reaction review={review.id} resetFunc={reset} type="Dislike"/>
+                            </div>
                         </div>
                         {review.is_edited? (
                             <p>[Edited]</p>
@@ -108,8 +117,10 @@ function ReviewComponent({id, review_type,}: Props) {
                             </>
                         ): null}
                         <ReviewForm chapter={undefined} parent={review.id.toString()} resetFunc={reset} />
+                        <hr />
                         <ReviewComponent id={review.id.toString()} review_type="children" />
                     </li>
+                    </>
             )
                 )}
             </ul>

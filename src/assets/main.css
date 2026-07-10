@@ -3,7 +3,7 @@
   src: url(./fonts/Roboto_Condensed-Regular.ttf);
 }
 
-p, a, h1, h2, h3 {
+p, a, h1, h2, h3, label, summary {
     font-family: roboto;
 }
 
@@ -20,6 +20,16 @@ nav div {
     gap: 1rem;
 }
 
+.nav-header {
+    background-color: #000;
+    padding: 1rem 5rem;
+}
+
+.nav-header a {
+    background-color: #000;
+    color: #fff;
+}
+
 * {
     padding: 0;
     margin: 0;
@@ -27,22 +37,34 @@ nav div {
 
 body {
     background-color: #6d6d6d;
+}
+
+.content {
     padding: 0 5rem;
 }
 
 button {
-    border: none;
+    border: 1px solid #000;
     background: none;
+    padding: 0.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    width: fit-content;
 }
 
 button:hover {
     cursor: pointer;
+    background-color: #000;
+    color: #fff;
 }
 
 a {
     color: #000;
     text-decoration: none;
 }
+
 .serie-cover {
     width: 20rem;
 }
@@ -55,9 +77,15 @@ a {
 }
 
 .single-review {
+    display: flex;
+    flex-direction: column;
     padding: 1rem;
-    border: solid #000 1px;
     margin-bottom: 1rem;
+    gap: 0.5rem;
+}
+
+.single-review hr {
+    margin-top: 1rem;
 }
 
 .disconnect:hover {
@@ -76,23 +104,31 @@ a {
     border-radius: 50px;
 }
 
-.dislike-div, .like-div {
+.reaction {
     display: flex;
     gap: 1rem;
 }
+
+.dislike-div, .like-div {
+    display: flex;
+    gap: 0.5rem;
+}
+
 .serie-list {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
+    gap: 1rem;
 }
 
 .serie-list-item {
-    width: 10rem;
-    height: 14rem;
+    width: 9rem;
+    height: 12rem;
     display: flex;
     background-repeat: no-repeat;
-    background-size: auto;
+    background-size: cover;
+    background-position: center;
     background-size: 100%;
 }
 
@@ -106,4 +142,64 @@ a {
     justify-content: center;
     width: 100%;
     backdrop-filter: blur(10px);
+}
+
+#file {
+    opacity: 0;
+    width: 0.1px;
+    height: 0.1px;
+    position: absolute;
+}
+
+.file-form label {
+    display: block;
+    position: relative;
+    width: fit-content;
+    height: fit-content;
+    padding: 0.1rem;
+    border-radius: 4px;
+    border: #000 solid 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    cursor: pointer;
+}
+
+.file-form label:hover {
+    background-color: #000;
+    color: #fff;
+}
+
+label {
+    display: flex;
+    gap: 1rem;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.login-form, .register-form {
+    flex-direction: row;
+}
+
+input[type=submit] {
+    width: fit-content;
+}
+
+.review-user {
+    width: fit-content;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.review-user img {
+    height: 3rem;
+    width: 3rem;
+    object-fit: cover;
+    border-radius: 50px;
 }

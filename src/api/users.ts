@@ -13,6 +13,7 @@ export type Profile = {
 export type UserType = {
     id: number
     username: string
+    picture: string
 }
 
 export type ReviewType = {

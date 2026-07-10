@@ -31,7 +31,7 @@ function RegisterForm() {
         })
     }
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="register-form">
             <label>Email
                 <input 
                 type="text"

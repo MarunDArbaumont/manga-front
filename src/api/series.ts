@@ -2,11 +2,12 @@ import API_BASE_URL from "./variables"
 import type { Chapter } from "./chapters"
 import { helperFetch } from "./helper"
 import type { ResultPagination } from "./helper"
+import type { Author } from "./authors"
 
 export type Serie = {
     id: number
     title: string
-    author: number[]
+    author: Author[]
     first_published: string
     last_published: string | null
     description: string

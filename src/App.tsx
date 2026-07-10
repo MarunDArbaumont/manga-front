@@ -16,7 +16,7 @@ function App() {
   const { user } = useAuth()
   return (
   <BrowserRouter>
-    <nav>
+    <nav className="nav-header">
       <div>
         <Link to="/">Home</Link>
         <Link to="/series">Series</Link>

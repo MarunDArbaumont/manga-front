@@ -10,7 +10,9 @@ function SingleSeriePage() {
     }
 
     return (
-        <SingleSerie id={id} />
+        <div className="content">
+            <SingleSerie id={id} />
+        </div>
     )
 }
 
