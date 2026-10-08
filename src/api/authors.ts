@@ -1,6 +1,5 @@
-import API_BASE_URL from "./variables"
-import { helperFetch } from "./helper"
-import type { ResultPagination } from "./helper"
+import type { ResultPagination } from "./api"
+import { api } from "./api"
 
 export type Author = {
     id: number
@@ -13,13 +12,13 @@ export type Author = {
 }
 
 export async function fetchAllAuthors(): Promise<Author[]> {
-    const url: string = API_BASE_URL + "authors/?limit=0"
-    const result = await helperFetch<ResultPagination>(url)
+    const url: string = "/authors/?limit=0"
+    const result = await api<ResultPagination>(url)
     return (await result).results
 }
 
 export async function fetchSingleAuthor(id: string): Promise<Author> {
-    const url: string = API_BASE_URL + "authors/" + id + "/"
-    const result = await helperFetch<Author>(url)
+    const url: string = "/authors/" + id + "/"
+    const result = await api<Author>(url)
     return result
 }

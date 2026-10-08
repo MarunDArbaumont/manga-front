@@ -9,6 +9,7 @@ function Series() {
     const [series, setSeries] = useState<Serie[]>([])
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
+    const defaultCover = "authors/2026/08/28/Pandaman_Oda.webp"
 
     useEffect(() => {
         async function load() {
@@ -38,7 +39,7 @@ function Series() {
                 key={serie.id}
                 to={`/series/${serie.id}`}
                 className="serie-list-item"
-                style={{backgroundImage: `url(${serie.cover ?? "/src/assets/img/Pandaman_Oda.jpg"})`}}
+                style={{backgroundImage: `url("/media/${serie.cover ?? defaultCover}")`}}
                 >
                     <h3>{serie.title}</h3>
                 </Link>

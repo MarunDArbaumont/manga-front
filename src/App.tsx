@@ -10,7 +10,7 @@ import Disconnect from './components/Disconnect'
 import Register from './pages/Resgister'
 import Login from './pages/Login'
 import ProfilePage from './pages/ProfilePage'
-import { useAuth } from './hooks/useAuth'
+import { useAuth } from './context/AuthContext'
 
 function App() {
   const { user } = useAuth()

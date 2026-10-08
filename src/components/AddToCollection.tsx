@@ -1,65 +1,41 @@
-import API_BASE_URL from "../api/variables"
 import { useNavigate } from "react-router-dom"
-import { useAuth } from "../hooks/useAuth"
-import { fectchRefreshToken } from "../api/token"
+import { addToCollection } from "../api/users"
+import { ApiError } from "../api/api"
+import { useState } from "react"
 
 function AddToCollection({chapter}: {chapter: number}) {
     const navigate = useNavigate()
-    const { user, setUser } = useAuth()
-    
-
-    async function postReview(token: string) {
-        return fetch(API_BASE_URL + "profiles/add_manga/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + token,
-            },
-            body: JSON.stringify({
-                chapter,
-            }),
-        })
-    }
+    const [error, setError] = useState<string | null>(null)
+    const [submitting, setSubmitting] = useState(false)
 
     const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault()
-        try {          
-            if (!user) throw new Error("No user authenticated")
-            const access = user.authToken?.access
-            if (!access) {
-                throw new Error("No access token")
-            }
-            let response = await postReview(access)
-            
-            if (response.status === 401) {
-                const refresh = user.authToken?.refresh
-                if (!refresh) {
-                    throw new Error("No refresh token")
-                }
-                const newAccess = await fectchRefreshToken(refresh)
+        setError(null)
+        setSubmitting(true)
 
-                setUser({
-                    ...user,
-                    authToken: {
-                        ...user.authToken!,
-                        access: newAccess,
-                    },
-                })
-
-                response = await postReview(newAccess)
+        try {
+            await addToCollection(chapter)
+            } catch (err) {
+            if (err instanceof ApiError && err.status === 400) {
+                setError("This is not a chapter.")
+            } else if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+                setError("You need to be logged in to add to collection.")
+            } else {
+                setError("Something went wrong, please try again.")
             }
-            if (!response.ok) {
-                throw new Error("Failed to add to profile")
-            }
-            navigate(`/profile/${user.id}`)
-        } catch (error) {
-            console.error(error)
+            } finally {
+            setSubmitting(false)
+            navigate("/account")
         }
     }
+
     return (
+        <>
+        {error && <p role="alert">{error}</p>}
         <button onClick={handleSubmit}>
-            Add this chapter to your collection
+            {submitting ? "Adding..." : "Add this chapter to your collection"}
         </button>
+        </>
     )
 }
 

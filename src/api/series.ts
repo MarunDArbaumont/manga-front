@@ -1,8 +1,7 @@
-import API_BASE_URL from "./variables"
 import type { Chapter } from "./chapters"
-import { helperFetch } from "./helper"
-import type { ResultPagination } from "./helper"
+import type { ResultPagination } from "./api"
 import type { Author } from "./authors"
+import { api } from "./api"
 
 export type Serie = {
     id: number
@@ -18,13 +17,13 @@ export type Serie = {
 export type SerieSingle = Serie & {chapters: Chapter[] | []}
 
 export async function fetchAllSeries(): Promise<Serie[]> {
-    const url: string = API_BASE_URL + "series/"
-    const result = await helperFetch<ResultPagination>(url)
+    const url: string = "/series/"
+    const result = await api<ResultPagination>(url)
     return (await result).results
 }
 
 export async function fetchSingleSerie(id: string): Promise<SerieSingle> {
-    const url: string = API_BASE_URL + "series/" + id + "/"
-    const result = await helperFetch<SerieSingle>(url)
+    const url: string = "/series/" + id + "/"
+    const result = await api<SerieSingle>(url)
     return result
 }

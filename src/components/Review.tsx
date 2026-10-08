@@ -1,130 +1,140 @@
-import { useEffect, useState } from 'react'
-import { fetchReviewsByUser, fetchReviewsChapter, fetchReviewsParent, type ReviewType } from '../api/users'
-import ErrorMessage from './ErrorMessage'
-import Loading from './Loading'
-import { useAuth } from '../hooks/useAuth'
-import RemoveReview from './RemoveReview'
-import EditReview from './EditReview'
-import Reaction from './Reaction'
-import ReviewForm from './ReviewForm'
+import { useCallback, useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { MEDIA_BASE_URL } from '../api/variables'
+import {
+  fetchReviewsByUser,
+  fetchReviewsChapter,
+  fetchReviewsParent,
+  type ReviewType,
+} from "../api/users"
+import ErrorMessage from "./ErrorMessage"
+import Loading from "./Loading"
+import { useAuth } from "../context/AuthContext"
+import RemoveReview from "./RemoveReview"
+import EditReview from "./EditReview"
+import Reaction from "./Reaction"
+import ReviewForm from "./ReviewForm"
 
 type Props = {
-    id: string
-    review_type: string
-    refresh?: number
+  id: string
+  review_type: "chapter" | "user" | "children"
+  refresh?: number
 }
 
-function ReviewComponent({id, review_type, refresh}: Props) {
-    const [reviews, setReviews] = useState<ReviewType[]| null>(null)
-    const [error, setError] = useState<string | null>(null)
-    const [loading, setLoading] = useState(true)
-    const { user } = useAuth()
+function ReviewComponent({ id, review_type, refresh }: Props) {
+  const [reviews, setReviews] = useState<ReviewType[] | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+  const { user } = useAuth()
+  const userId = user?.id
 
-    useEffect(() => {
-        
-        async function load() {
-            try {
-                if (review_type == "chapter") {
-                    const data = await fetchReviewsChapter(id)
-                    setReviews(data)
-                } else if (review_type == "user") {
-                    const data = await fetchReviewsByUser(id)
-                    setReviews(data)
-                } else if (review_type == "children") {
-                    const data = await fetchReviewsParent(id)
-                    setReviews(data)
-                }
-            } catch (err) {
-                if (err instanceof Error) {
-                    setError(err.message)
-                }
-            } finally {
-                setLoading(false)
-            }
-        }
-        load()
-    }, [id, review_type, refresh])
-
-    if (loading) return <Loading message="Loading series..." />
-    if (error) return <ErrorMessage message={error} />
-    if (!reviews) return <h2>No reviews</h2>
-    async function loadReview() {
-       if (review_type == "chapter") {
-            const data = await fetchReviewsChapter(id)
-            setReviews(data)
-        } else if (review_type == "user") {
-            const data = await fetchReviewsByUser(id)
-            setReviews(data)
-        } else if (review_type == "children") {
-            const data = await fetchReviewsParent(id)
-            setReviews(data)
-        }
+  const loadReviews = useCallback(async () => {
+    try {
+      setError(null)
+      if (review_type === "chapter") {
+        setReviews(await fetchReviewsChapter(id))
+      } else if (review_type === "user") {
+        setReviews(await fetchReviewsByUser(id))
+      } else {
+        setReviews(await fetchReviewsParent(id))
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load reviews")
+    } finally {
+      setLoading(false)
     }
-    const reset = () => {
-        loadReview()
-    }
+  }, [id, review_type, userId])
 
-    return (
-        <>
-            <ul>
-            {reviews.map((review) => 
-                review_type == "user" && review.chapter == undefined? null: (
-                    <>
-                    <li key={review.id} className='single-review'>
-                        {review_type == "children" ? (
-                            <p>Response to the above</p>
-                        ): null }
-                        {review_type == "user" ? (
-                            <p>Chapter: <Link to={`/chapters/${review.chapter?.id}`}>{review.chapter?.name}</Link></p>
-                        ): null }
-                            <Link to={`/profile/${review.user.id}`} className="review-user">
-                                <img src={MEDIA_BASE_URL + review.user.picture.slice(1)}/>
-                                {review.user.username}
-                            </Link>
-                        {review_type != "children"? (
-                            <p>Rating: {review.rating}/5</p>
-                        ): null}
-                        <p>{review.description}</p>
-                        <div className="reaction">
-                            <div className="like-div">
-                                <p>{review.likes}</p>
-                                <Reaction review={review.id} resetFunc={reset} type="Like"/>
-                            </div>
-                            <div className="dislike-div">
-                                <p>{review.dislikes}</p>
-                                <Reaction review={review.id} resetFunc={reset} type="Dislike"/>
-                            </div>
-                        </div>
-                        {review.is_edited? (
-                            <p>[Edited]</p>
-                        ): null}
-                        {user?.id == review.user.id.toString()?(
-                            <>
-                                <details>
-                                    <summary>Edit review</summary>
-                                    <EditReview review={
-                                        {
-                                            id:review.id,
-                                            description: review.description,
-                                            rating: review.rating?.toString() ?? "",
-                                        }
-                                        } 
-                                        resetFunc={reset}/>
-                                </details>
-                                <RemoveReview review={review.id} resetFunc={reset}/>
-                            </>
-                        ): null}
-                        <ReviewForm chapter={undefined} parent={review.id.toString()} resetFunc={reset} />
-                        <hr />
-                        <ReviewComponent id={review.id.toString()} review_type="children" />
-                    </li>
-                    </>
-            )
-                )}
-            </ul>
-        </>
-    )
+  useEffect(() => {
+    void loadReviews()
+  }, [loadReviews, refresh])
+
+  if (loading) return <Loading message="Loading reviews..." />
+  if (error) return <ErrorMessage message={error} />
+  if (!reviews || reviews.length === 0) return <h2>No reviews</h2>
+
+  const visible =
+    review_type === "user" ? reviews.filter((r) => r.chapter) : reviews
+
+  return (
+    <ul>
+      {visible.map((review) => (
+        <li key={review.id} className="single-review">
+          {review_type === "children" && <p>Response to the above</p>}
+
+          {review_type === "user" && (
+            <p>
+              Chapter:{" "}
+              <Link to={`/chapters/${review.chapter?.id}`}>
+                {review.chapter?.name}
+              </Link>
+            </p>
+          )}
+
+          <Link to={`/profile/${review.user.id}`} className="review-user">
+            <img src={review.user.picture} alt="" />
+            {review.user.username}
+          </Link>
+
+          {review_type !== "children" && <p>Rating: {review.rating}/5</p>}
+          <p>{review.description}</p>
+
+          <div className="reaction">
+            <div className="like-div">
+              <p>{review.likes}</p>
+              <Reaction review={review.id} type="Like" active={review.my_reaction === "like"} resetFunc={loadReviews}  />
+            </div>
+            <div className="dislike-div">
+              <p>{review.dislikes}</p>
+              <Reaction review={review.id} type="Dislike" active={review.my_reaction === "dislike"} resetFunc={loadReviews} />
+            </div>
+          </div>
+
+          {review.is_edited && <p>[Edited]</p>}
+
+          {user?.id === review.user.id && (
+            <>
+              <details>
+                <summary>Edit review</summary>
+                <EditReview
+                  review={{
+                    id: review.id,
+                    description: review.description,
+                    rating: review.rating?.toString() ?? "",
+                  }}
+                  resetFunc={loadReviews}
+                />
+              </details>
+              <RemoveReview review={review.id} resetFunc={loadReviews} />
+            </>
+          )}
+
+          {user && (
+            <ReviewForm
+              chapter={undefined}
+              parent={review.id}
+              resetFunc={loadReviews}
+            />
+          )}
+
+          <hr />
+          <Comments reviewId={review.id} />
+        </li>
+      ))}
+    </ul>
+  )
 }
+
+function Comments({ reviewId }: { reviewId: number }) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <details onToggle={(e) => setOpen(e.currentTarget.open)}>
+      <summary>Comments</summary>
+      {open && (
+        <ReviewComponent id={reviewId.toString()} review_type="children" />
+      )}
+    </details>
+  )
+}
+
 export default ReviewComponent
