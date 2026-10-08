@@ -1,6 +1,6 @@
-import API_BASE_URL from "../api/variables"
-import { useAuth } from "../hooks/useAuth"
-import { fectchRefreshToken } from "../api/token"
+import { useState } from "react"
+import { removeToCollection } from "../api/users"
+import { ApiError } from "../api/api"
 
 type Props = {
     chapter: number
@@ -8,61 +8,36 @@ type Props = {
 }
 
 function RemoveFromCollection({ chapter, resetFunc }: Props) {
-    const { user, setUser } = useAuth()
-    
-
-    async function postReview(token: string) {
-        return fetch(API_BASE_URL + "profiles/remove_manga/", {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + token,
-            },
-            body: JSON.stringify({
-                chapter,
-            }),
-        })
-    }
-
-    const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault()
-        try {          
-            if (!user) throw new Error("No user authenticated")
-            const access = user.authToken?.access
-            if (!access) {
-                throw new Error("No access token")
-            }
-            let response = await postReview(access)
-            
-            if (response.status === 401) {
-                const refresh = user.authToken?.refresh
-                if (!refresh) {
-                    throw new Error("No refresh token")
-                }
-                const newAccess = await fectchRefreshToken(refresh)
-
-                setUser({
-                    ...user,
-                    authToken: {
-                        ...user.authToken!,
-                        access: newAccess,
-                    },
-                })
-
-                response = await postReview(newAccess)
-            }
-            if (!response.ok) {
-                throw new Error("Failed to remove from profile")
-            }
-            resetFunc()
-        } catch (error) {
-            console.error(error)
-        }
-    }
+    const [error, setError] = useState<string | null>(null)
+    const [submitting, setSubmitting] = useState(false)
+   
+       const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
+           event.preventDefault()
+           setError(null)
+           setSubmitting(true)
+   
+           try {
+               await removeToCollection(chapter)
+               } catch (err) {
+               if (err instanceof ApiError && err.status === 400) {
+                   setError("This is not a chapter.")
+               } else if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+                   setError("You need to be logged in to add to collection.")
+               } else {
+                   setError("Something went wrong, please try again.")
+               }
+               } finally {
+               setSubmitting(false)
+           }
+           resetFunc()
+       }
     return (
+        <>
+        {error && <p role="alert">{error}</p>}
         <button onClick={handleSubmit}>
-            Remove chapter
+            {submitting ? "Removing..." : "Remove from collection"}
         </button>
+        </>
     )
 }
 

@@ -36,7 +36,7 @@ function SingleSerie( {id}: { id: string }) {
         <>
             <h1>{serie.title}</h1>
             {serie.cover ? (
-                <img src={serie.cover} className='serie-cover' />
+                <img src={`/media/${serie.cover}`} className='serie-cover' />
             ): null}
             <p>first published: {dateFormat(serie.first_published)}</p>
             <p>{serie.genre}</p>

@@ -1,5 +1,5 @@
 import { useState } from "react"
-import API_BASE_URL from "../api/variables"
+import { API_BASE_URL } from "../api/variables"
 import { useNavigate } from "react-router-dom"
 
 function RegisterForm() {

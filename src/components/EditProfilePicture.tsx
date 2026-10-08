@@ -1,95 +1,80 @@
-import API_BASE_URL from "../api/variables"
-import { useAuth } from "../hooks/useAuth"
-import { fectchRefreshToken } from "../api/token"
-import { useState } from "react"
+import { useState, type FormEvent } from "react"
+import { useAuth } from "../context/AuthContext"
+import { ApiError } from "../api/api"
+import { updateProfilePicture } from "../api/users"
 
 type Props = {
-    profile: {
-        id: number
-    }
-    resetFunc: () => void
+  profile: { id: number }
+  resetFunc: () => void
 }
 
+const MAX_SIZE = 5 * 1024 * 1024 // 5 MB
+
 function EditProfilePicture({ profile, resetFunc }: Props) {
-    const { user, setUser } = useAuth()
-    const [picture, setPicture] = useState<File | null>(null)
-    
-    
+  const { user } = useAuth()
+  const [picture, setPicture] = useState<File | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
 
-    async function postPicture(token: string) {
-        if (!picture) {
-            throw new Error("No picture selected")
-        }
+  if (user?.id !== profile.id) return null
 
-        const formData = new FormData()
-        formData.append("profile_picture", picture)
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!picture) return
 
-        return fetch(API_BASE_URL + "profiles/" + profile.id + "/", {
-            method: "PATCH",
-            headers: {
-                "Authorization": "Bearer " + token,
-            },
-            body: formData,
-        })
+    const form = event.currentTarget
+    setError(null)
+    setSubmitting(true)
+
+    try {
+      await updateProfilePicture(profile.id, picture)
+      setPicture(null)
+      form.reset()
+      resetFunc()
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 400) {
+        setError("This file isn't a valid image.")
+      } else if (err instanceof ApiError && err.status === 413) {
+        setError("This image is too large.")
+      } else if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+        setError("You need to be logged in to change your picture.")
+      } else {
+        setError("Something went wrong, please try again.")
+      }
+    } finally {
+      setSubmitting(false)
     }
+  }
 
-const handleSubmit = async (
-        event: React.FormEvent<HTMLFormElement>
-    ) => {
-        event.preventDefault()
-        try {
-            
-            if (!user) throw new Error("No user authenticated")
-            const access = user.authToken?.access
-            if (!access) {
-                throw new Error("No access token")
-            }
-            let response = await postPicture(access)
-            
-            if (response.status === 401) {
-                const refresh = user.authToken?.refresh
-                if (!refresh) {
-                    throw new Error("No refresh token")
-                }
-                const newAccess = await fectchRefreshToken(refresh)
+  return (
+    <form onSubmit={handleSubmit} className="file-form">
+      <input
+        type="file"
+        id="file"
+        accept="image/png, image/jpeg"
+        onChange={(event) => {
+          const file = event.target.files?.[0] ?? null
+          if (file && file.size > MAX_SIZE) {
+            setError("The image must be under 5 MB.")
+            setPicture(null)
+            event.target.value = ""
+            return
+          }
+          setError(null)
+          setPicture(file)
+        }}
+      />
+      <label htmlFor="file">
+        {picture ? picture.name : "Choose a new profile picture"}
+      </label>
 
-                setUser({
-                    ...user,
-                    authToken: {
-                        ...user.authToken!,
-                        access: newAccess,
-                    },
-                })
+      {error && <p role="alert">{error}</p>}
 
-                response = await postPicture(newAccess)
-            }
-            if (!response.ok) {
-                throw new Error("Failed to create review")
-            }
-            resetFunc()
-        } catch (error) {
-            console.error(error)
-        }
-    }
-    return (
-        <>
-            <form onSubmit={handleSubmit} className="file-form">
-                    <input 
-                    type="file"
-                    id="file"
-                    onChange={(event) => {
-                        const file = event.target.files?.[0]
-                        if (file) {
-                            setPicture(file)
-                        }
-                    }}
-                    accept="image/png, image/jpeg, image/jpg" 
-                    />
-                    <label htmlFor="file">Update profile picture</label>
-                <button type="submit">Update profile picture</button>
-            </form>
-        </>
-    )
+      <button type="submit" disabled={!picture || submitting}>
+        {submitting ? "Uploading..." : "Save"}
+      </button>
+    </form>
+  )
 }
 
 export default EditProfilePicture

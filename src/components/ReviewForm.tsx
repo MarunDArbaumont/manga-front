@@ -1,102 +1,84 @@
-import { useState } from "react"
-import API_BASE_URL from "../api/variables"
-import { fectchRefreshToken } from "../api/token"
-import { useAuth } from "../hooks/useAuth"
+import { useState, type FormEvent } from "react"
+import { ApiError } from "../api/api"
+import { createReview } from "../api/users"
+import type { Chapter } from "../api/chapters"
 
 
 type Props = {
-    chapter?: number
-    parent?: string
+    chapter?: Chapter
+    parent?: number
     resetFunc: () => void
 }
 
 function ReviewForm({ chapter, parent, resetFunc }: Props) {
-    const { user, setUser } = useAuth()
     const [rating, setRating] = useState("")
     const [description, setDescription] = useState("")
+    const [error, setError] = useState<string | null>(null)
+    const [submitting, setSubmitting] = useState(false)
 
-
-
-    async function postReview(token: string) {
-        return fetch(API_BASE_URL + "reviews/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + token,
-            },
-            body: JSON.stringify({
-                rating: parent ? null : rating,
-                description,
-                chapter,
-                parent,
-            }),
-        })
-    }
-
-    const handleSubmit = async (
-        event: React.FormEvent<HTMLFormElement>
-    ) => {
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
+        setError(null)
+        setSubmitting(true)
+
         try {
-            
-            if (!user) throw new Error("No user authenticated")
-            const access = user.authToken?.access
-            if (!access) {
-                throw new Error("No access token")
-            }
-            let response = await postReview(access)
-            
-            if (response.status === 401) {
-                const refresh = user.authToken?.refresh
-                if (!refresh) {
-                    throw new Error("No refresh token")
-                }
-                const newAccess = await fectchRefreshToken(refresh)
-
-                setUser({
-                    ...user,
-                    authToken: {
-                        ...user.authToken!,
-                        access: newAccess,
-                    },
-                })
-
-                response = await postReview(newAccess)
-            }
-            if (!response.ok) {
-                throw new Error("Failed to create review")
-            }
-            resetFunc()
-        } catch (error) {
-            console.error(error)
+        await createReview({
+            rating: parent ? null : Number(rating),
+            description,
+            chapter,
+            parent,
+        })
+        setRating("")
+        setDescription("")
+        resetFunc()
+        } catch (err) {
+        if (err instanceof ApiError && err.status === 400) {
+            setError("Your review is invalid, please check the fields.")
+        } else if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+            setError("You need to be logged in to post a review.")
+        } else {
+            setError("Something went wrong, please try again.")
         }
+        } finally {
+        setSubmitting(false)
     }
-    return (
-        <>
-            <h2>Add review</h2>
-            <form onSubmit={handleSubmit}>
-                {parent == null? (
-                    <label>Rating
-                        <input 
-                        type="number"
-                        min="1"
-                        max="5"
-                        value={rating}
-                        onChange={(event) => setRating(event.target.value)}
-                        />
-                    </label>
-                ): null}
-                <label>Description
-                    <input 
-                    type="text"
-                    value={description}
-                    onChange={(event) => setDescription(event.target.value)}
-                    />
-                </label>
-                <button type="submit">Submit review</button>
-            </form>
-        </>
-    )
+  }
+
+  return (
+    <>
+      <h2>{parent ? "Reply" : "Add review"}</h2>
+      <form onSubmit={handleSubmit}>
+        {parent == null && (
+          <label>
+            Rating
+            <input
+              type="number"
+              min="1"
+              max="5"
+              value={rating}
+              onChange={(event) => setRating(event.target.value)}
+              required
+            />
+          </label>
+        )}
+        <label>
+          Description
+          <input
+            type="text"
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+            required
+          />
+        </label>
+
+        {error && <p role="alert">{error}</p>}
+
+        <button type="submit" disabled={submitting}>
+          {submitting ? "Sending..." : "Submit review"}
+        </button>
+      </form>
+    </>
+  )
 }
 
 export default ReviewForm

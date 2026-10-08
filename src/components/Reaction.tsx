@@ -1,85 +1,45 @@
-import API_BASE_URL from "../api/variables"
-import { useAuth } from "../hooks/useAuth"
-import { fectchRefreshToken } from "../api/token"
+import { useState } from "react"
+import { useAuth } from "../context/AuthContext"
+import { ApiError } from "../api/api"
+import { reactToReview, removeReaction, type ReactionType } from "../api/users"
 
 type Props = {
-    review: number
-    resetFunc: () => void
-    type: string
+  review: number
+  type: ReactionType
+  active: boolean
+  resetFunc: () => void
 }
 
-function Reaction({ review, resetFunc, type }: Props) {
-    const { user, setUser } = useAuth()
-    
+function Reaction({ review, type, active, resetFunc }: Props) {
+  const { user } = useAuth()
+  const [pending, setPending] = useState(false)
 
-    async function like(token: string) {
-        return fetch(API_BASE_URL + "reviews/" + review + "/like/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + token,
-            },
-            body: JSON.stringify({
-                user,
-                review,
-            }),
-        })
+  const handleClick = async () => {
+    if (!user || pending) return
+    setPending(true)
+
+    try {
+      await (active ? removeReaction(review) : reactToReview(review, type))
+      resetFunc()
+    } catch (err) {
+      if (!(err instanceof ApiError)) console.error(err)
+    } finally {
+      setPending(false)
     }
+  }
 
-    async function dislike(token: string) {
-        return fetch(API_BASE_URL + "reviews/" + review + "/dislike/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + token,
-            },
-            body: JSON.stringify({
-                user,
-                review,
-            }),
-        })
-    }
-
-    const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault()
-        try {          
-            if (!user) throw new Error("No user authenticated")
-            const access = user.authToken?.access
-            if (!access) {
-                throw new Error("No access token")
-            }
-            let response = type == "Like"? await like(access): await dislike(access)
-            
-            if (response.status === 401) {
-                const refresh = user.authToken?.refresh
-                if (!refresh) {
-                    throw new Error("No refresh token")
-                }
-                const newAccess = await fectchRefreshToken(refresh)
-
-                setUser({
-                    ...user,
-                    authToken: {
-                        ...user.authToken!,
-                        access: newAccess,
-                    },
-                })
-
-                response = type == "Like"? await like(access): await dislike(access)
-            }
-            if (!response.ok) {
-                throw new Error("Failed to remove review")
-            }
-            resetFunc()
-        } catch (error) {
-            console.error(error)
-        }
-    }
-    return (
-        <button onClick={handleSubmit}>
-            {type}
-        </button>
-    )
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      disabled={!user || pending}
+      aria-pressed={active}
+      className={active ? "reaction-btn active" : "reaction-btn"}
+      title={user ? undefined : "Log in to react"}
+    >
+      {type}
+    </button>
+  )
 }
 
 export default Reaction

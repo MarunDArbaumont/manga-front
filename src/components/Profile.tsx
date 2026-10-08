@@ -4,7 +4,7 @@ import ErrorMessage from './ErrorMessage'
 import Loading from './Loading'
 import ReviewComponent from './Review'
 import RemoveFromCollection from './RemoveFromCollection'
-import { useAuth } from '../hooks/useAuth'
+import { useAuth } from '../context/AuthContext'
 import EditProfileBio from './EditProfileBio'
 import EditProfilePicture from './EditProfilePicture'
 import { Link } from "react-router-dom"
@@ -82,13 +82,13 @@ function ProfileComponent( {id}: { id: string }) {
         loadProfile()
     }
 
-    const isConnected = user && profile.user.toString() == user.id
+    const isConnected = user && profile.user == user.id
     return (
         <>
             <h1>Welcome to {profileUser?.username}'s profile</h1>
             <div className="pp-container">
                 {profile.profile_picture != null? (
-                    <img src={profile.profile_picture} className="profile-picture"/>
+                    <img src={`/media/${profile.profile_picture}`} className="profile-picture"/>
                 ): (
                     <img src="/src/assets/img/Pandaman_Oda.jpg" alt="default profile picture" className="profile-picture"/>
                 )}

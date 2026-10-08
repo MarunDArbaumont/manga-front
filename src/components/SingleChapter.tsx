@@ -46,7 +46,7 @@ function SingleChapter( {id}: { id: string }) {
             <p>From <Link to={`/series/${chapter.manga.id}`}>{chapter.manga.title}</Link></p>
             <p>first published: {dateFormat(chapter.first_published)}</p>
             <p>{chapter.count_rating} users' rating: {chapter.average_rating}</p>
-            <ReviewForm chapter={chapter.id} parent={undefined} resetFunc={reset}/>
+            <ReviewForm chapter={chapter} parent={undefined} resetFunc={reset}/>
             <h2>Reviews:</h2>
             <hr />
             <ReviewComponent id={chapter.id.toString()} review_type={"chapter"} refresh={refreshReviews}/>
