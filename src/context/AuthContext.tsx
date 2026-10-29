@@ -1,44 +1,25 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { api, setAuthErrorHandler } from "../api/api";
-
-export interface User {
-  id: number;
-  username: string;
-}
-
-interface AuthContextValue {
-  user: User | null;
-  loading: boolean;
-  login: (username: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  refresh: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextValue | null>(null);
+import { endpoints } from "../api/endpoints";
+import { AuthContext, type AuthContextValue, type User } from "./useAuth";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const inFlight = useRef<Promise<void> | null>(null);
+  const sessionVersion = useRef(0);
 
   // Re-checks the session with the server. Concurrent calls share one request.
   const refresh = useCallback((): Promise<void> => {
     if (inFlight.current) return inFlight.current;
 
+    const version = sessionVersion.current;
     inFlight.current = (async () => {
       try {
-        setUser(await api<User>("/auth/me/", { skipAuthHandler: true }));
+        const currentUser = await api<User>(endpoints.me, { skipAuthHandler: true });
+        if (sessionVersion.current === version) setUser(currentUser);
       } catch {
-        setUser(null);
+        if (sessionVersion.current === version) setUser(null);
       } finally {
         inFlight.current = null;
       }
@@ -51,7 +32,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     (async () => {
       try {
-        await api("/auth/csrf/");
+        await api(endpoints.csrf);
+      } catch {
+        // The session check below determines whether the user is authenticated.
       } finally {
         await refresh();
         setLoading(false);
@@ -82,27 +65,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       refresh,
       login: async (username, password) => {
-        setUser(
-          await api<User>("/auth/login/", {
-            method: "POST",
-            body: { username, password },
-            skipAuthHandler: true,
-          })
-        );
+        // Ignore any session check that was already in flight.
+        const version = sessionVersion.current + 1;
+        sessionVersion.current = version;
+        inFlight.current = null;
+
+        const currentUser = await api<User>(endpoints.login, {
+          method: "POST",
+          body: { username, password },
+          skipAuthHandler: true,
+        });
+
+        // If the user logged out while the login request was in flight,
+        // don't restore the old session.
+        if (sessionVersion.current === version) setUser(currentUser);
       },
       logout: async () => {
-        await api("/auth/logout/", { method: "POST" });
+        // Clear locally first so the UI reacts even if the request fails.
+        sessionVersion.current += 1;
+        inFlight.current = null;
         setUser(null);
+
+        try {
+          await api(endpoints.logout, { method: "POST", skipAuthHandler: true });
+        } catch {
+          // The local session is already cleared; don't block the user.
+        }
       },
     }),
     [user, loading, refresh]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth(): AuthContextValue {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used inside <AuthProvider>");
-  return ctx;
 }

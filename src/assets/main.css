@@ -203,3 +203,181 @@ input[type=submit] {
     object-fit: cover;
     border-radius: 50px;
 }
+
+.nav-header a.active {
+    text-decoration: underline;
+    text-underline-offset: 0.2rem;
+}
+
+.nav-status {
+    color: #fff;
+    font-family: roboto;
+}
+
+.form-status {
+    color: #0b5d1e;
+}
+
+.not-found,
+.error-boundary {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 1rem;
+}
+
+.error-boundary p {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.page-intro {
+    margin: 0.5rem 0 1rem;
+}
+
+.home-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.filter-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.filter-form input,
+.filter-form select {
+    padding: 0.3rem;
+    border: 1px solid #000;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.empty-state {
+    margin: 1rem 0;
+    font-family: roboto;
+    font-style: italic;
+}
+
+.login-prompt {
+    margin: 0.75rem 0;
+}
+
+.author-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.author-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    border: 1px solid #000;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+.author-card img {
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.chapter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 1rem 0;
+}
+
+.chapter-list-item {
+    padding: 0.75rem;
+    border: 1px solid #000;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+.serie-detail-header,
+.author-detail-header,
+.chapter-detail-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 2rem;
+    margin: 1rem 0;
+}
+
+.serie-detail-header > div,
+.author-detail-header > div,
+.chapter-detail-header > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.serie-description {
+    max-width: 60rem;
+    line-height: 1.4;
+}
+
+.chapter-serie-cover {
+    width: 8rem;
+    max-height: 12rem;
+    object-fit: cover;
+    border: 3px solid #000;
+}
+
+.collection-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.collection-serie {
+    display: flex;
+    gap: 1rem;
+    padding: 0.75rem;
+    border: 1px solid #000;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+.collection-cover {
+    width: 5rem;
+    height: 7rem;
+    object-fit: cover;
+}
+
+.review-context {
+    font-style: italic;
+}

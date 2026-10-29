@@ -1,41 +1,53 @@
 import { useState, type FormEvent } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { useAuth } from "../context/AuthContext"
-import { ApiError } from "../api/api"
+import { useAuth } from "../context/useAuth"
+import { getApiErrorMessage } from "../api/api"
+import { useMutation } from "../hooks/useMutation"
+
+type FromLocation = {
+  pathname: string
+  search?: string
+  hash?: string
+}
+
+type LoginState = {
+  from?: FromLocation
+  registered?: boolean
+}
 
 function LoginForm() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
-  const [error, setError] = useState<string | null>(null)
-  const [submitting, setSubmitting] = useState(false)
 
   const navigate = useNavigate()
   const location = useLocation()
+  const state = location.state as LoginState | null
   const { login } = useAuth()
+  const { mutate, pending, error } = useMutation(login)
 
-  const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? "/"
+  const from = state?.from
+  const redirectTo =
+    from &&
+    from.pathname !== "/login" &&
+    from.pathname !== "/register"
+      ? `${from.pathname}${from.search ?? ""}${from.hash ?? ""}`
+      : "/"
 
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    setError(null)
-    setSubmitting(true)
 
-    try {
-      await login(username, password)
-      navigate(from, { replace: true })
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 400) {
-        setError("Invalid username or password.")
-      } else {
-        setError("Something went wrong, please try again.")
-      }
-    } finally {
-      setSubmitting(false)
-    }
+    const result = await mutate(username, password)
+    if (result.ok) navigate(redirectTo, { replace: true })
   }
 
   return (
     <form onSubmit={handleLogin} className="login-form">
+      {state?.registered ? (
+        <p role="status" className="form-status">
+          Your account was created. Please log in.
+        </p>
+      ) : null}
+
       <label>
         Username:
         <input
@@ -59,10 +71,14 @@ function LoginForm() {
         />
       </label>
 
-      {error && <p role="alert" className="login-error">{error}</p>}
+      {error ? (
+        <p role="alert" className="login-error">
+          {getApiErrorMessage(error, { status: { 400: "Invalid username or password." } })}
+        </p>
+      ) : null}
 
-      <button type="submit" disabled={submitting}>
-        {submitting ? "Logging in..." : "Log in"}
+      <button type="submit" disabled={pending}>
+        {pending ? "Logging in..." : "Log in"}
       </button>
     </form>
   )

@@ -1,8 +1,7 @@
 function dateFormat(date: string): string {
-    let posT: number = date.search("T")
-    let formattedDate: string = date.slice(0, posT)
-    return formattedDate
+    const posT: number = date.search("T")
+    if (posT === -1) return date
+    return date.slice(0, posT)
 }
-
 
 export default dateFormat

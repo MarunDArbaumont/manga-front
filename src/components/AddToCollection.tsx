@@ -1,39 +1,34 @@
-import { useNavigate } from "react-router-dom"
 import { addToCollection } from "../api/users"
-import { ApiError } from "../api/api"
+import { getApiErrorMessage, type ApiErrorMessages } from "../api/api"
+import { useMutation } from "../hooks/useMutation"
 import { useState } from "react"
 
+const ERROR_MESSAGES: ApiErrorMessages = {
+    status: {
+        400: "This is not a chapter.",
+        401: "You need to be logged in to add to collection.",
+        403: "You need to be logged in to add to collection.",
+    },
+}
+
 function AddToCollection({chapter}: {chapter: number}) {
-    const navigate = useNavigate()
-    const [error, setError] = useState<string | null>(null)
-    const [submitting, setSubmitting] = useState(false)
+    const [message, setMessage] = useState<string | null>(null)
+    const { mutate, pending, error } = useMutation(addToCollection)
 
     const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault()
-        setError(null)
-        setSubmitting(true)
+        setMessage(null)
 
-        try {
-            await addToCollection(chapter)
-            } catch (err) {
-            if (err instanceof ApiError && err.status === 400) {
-                setError("This is not a chapter.")
-            } else if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
-                setError("You need to be logged in to add to collection.")
-            } else {
-                setError("Something went wrong, please try again.")
-            }
-            } finally {
-            setSubmitting(false)
-            navigate("/account")
-        }
+        const result = await mutate(chapter)
+        if (result.ok) setMessage("Chapter added to your collection.")
     }
 
     return (
         <>
-        {error && <p role="alert">{error}</p>}
-        <button onClick={handleSubmit}>
-            {submitting ? "Adding..." : "Add this chapter to your collection"}
+        {error ? <p role="alert">{getApiErrorMessage(error, ERROR_MESSAGES)}</p> : null}
+        {message && <p role="status">{message}</p>}
+        <button type="button" onClick={handleSubmit} disabled={pending}>
+            {pending ? "Adding..." : "Add this chapter to your collection"}
         </button>
         </>
     )

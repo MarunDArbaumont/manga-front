@@ -1,15 +1,21 @@
-import { useEffect, useMemo, useState } from 'react'
-import { fetchProfileByUserID, fetchUserByID, type SingleProfile, type UserType } from '../api/users'
-import ErrorMessage from './ErrorMessage'
-import Loading from './Loading'
-import ReviewComponent from './Review'
-import RemoveFromCollection from './RemoveFromCollection'
-import { useAuth } from '../context/AuthContext'
-import EditProfileBio from './EditProfileBio'
-import EditProfilePicture from './EditProfilePicture'
+import { useCallback, useMemo } from 'react'
 import { Link } from "react-router-dom"
+import { fetchProfileByUserID, fetchUserByID, type BasicUser, type SingleProfile } from '../api/users'
+import { getApiErrorMessage } from '../api/api'
+import { mediaUrl } from '../api/variables'
+import { useAuth } from '../context/useAuth'
+import { useApiResource } from '../hooks/useApiResource'
 import type { Serie } from '../api/series'
 import type { Chapter } from '../api/chapters'
+import defaultCover from '../assets/img/Pandaman_Oda.jpg'
+import defaultProfilePicture from '../assets/img/Pandaman_Oda.jpg'
+import EditProfileBio from './EditProfileBio'
+import EditProfilePicture from './EditProfilePicture'
+import EmptyState from './EmptyState'
+import ErrorMessage from './ErrorMessage'
+import Loading from './Loading'
+import RemoveFromCollection from './RemoveFromCollection'
+import ReviewComponent from './Review'
 
 type ProfileCollection = {
     [mangaId: number]: {
@@ -18,38 +24,30 @@ type ProfileCollection = {
     };
 };
 
+type ProfileData = {
+    profile: SingleProfile
+    profileUser: BasicUser | null
+}
+
 function ProfileComponent( {id}: { id: string }) {
     const { user } = useAuth()
-    const [profile, setProfile] = useState<SingleProfile | null>(null)
-    const [profileUser, setUserProfile] = useState<UserType | null>(null)
-    const [error, setError] = useState<string | null>(null)
-    const [loading, setLoading] = useState(true)
-    
-    useEffect(() => { 
-        async function load() {
-            try {
-                const data = await fetchProfileByUserID(id)
-                setProfile(data)
-            } catch (err) {
-                if (err instanceof Error) {
-                    setError(err.message)
-                }
-            } finally {
-                setLoading(false)
-            }
+
+    const loadProfile = useCallback(async (): Promise<ProfileData> => {
+        const profile = await fetchProfileByUserID(id)
+
+        let profileUser: BasicUser | null = null
+        try {
+            profileUser = await fetchUserByID(profile.user.toString())
+        } catch {
+            // The profile itself is still usable without the username.
         }
-        load()
+
+        return { profile, profileUser }
     }, [id])
 
-    useEffect(() => {
-
-        async function loadUser() {
-            if (!profile) return
-            const results = await fetchUserByID(profile.user.toString())
-            setUserProfile(results)
-        }
-        loadUser()
-    }, [profile])
+    const { data, error, loading, reload } = useApiResource<ProfileData>(loadProfile)
+    const profile = data?.profile ?? null
+    const profileUser = data?.profileUser ?? null
 
     const collection = useMemo(() => {
         const grouped: ProfileCollection = {}
@@ -70,33 +68,38 @@ function ProfileComponent( {id}: { id: string }) {
         return grouped
     }, [profile])
 
-    if (loading) return <Loading message="Loading series..." />
-    if (error) return <ErrorMessage message={error} />
+    if (loading) return <Loading message="Loading profile..." />
+    if (error) {
+        return (
+            <ErrorMessage
+                message={getApiErrorMessage(error, {
+                    status: { 404: "This user doesn't have a profile or doesn't exist." },
+                    fallback: "Failed to load this profile.",
+                })}
+            />
+        )
+    }
     if (!profile) return <h2>This user doesn't have a profile or doesn't exist</h2>
-    
-    async function loadProfile() {
-        const data = await fetchProfileByUserID(id)
-        setProfile(data)
-    }
-    const reset = () => {
-        loadProfile()
-    }
 
     const isConnected = user && profile.user == user.id
+    const collectionSeries = Object.values(collection).sort((a, b) =>
+        a.serie.title.localeCompare(b.serie.title)
+    )
+
     return (
         <>
-            <h1>Welcome to {profileUser?.username}'s profile</h1>
+            <h1>Welcome to {profileUser?.username ?? "this user"}'s profile</h1>
             <div className="pp-container">
-                {profile.profile_picture != null? (
-                    <img src={`/media/${profile.profile_picture}`} className="profile-picture"/>
-                ): (
-                    <img src="/src/assets/img/Pandaman_Oda.jpg" alt="default profile picture" className="profile-picture"/>
-                )}
+                <img
+                    src={mediaUrl(profile.profile_picture, defaultProfilePicture)}
+                    alt={`${profileUser?.username ?? "User"}'s profile picture`}
+                    className="profile-picture"
+                />
             </div>
             {isConnected? (
-                    <EditProfilePicture profile={profile} resetFunc={reset}/>
+                    <EditProfilePicture profile={profile} resetFunc={reload}/>
                 ): null}
-            <p>{profile.bio}</p>
+            <p>{profile.bio || "No bio yet."}</p>
             {isConnected? (
                 <details>
                     <summary>Edit bio</summary>
@@ -104,35 +107,58 @@ function ProfileComponent( {id}: { id: string }) {
                     profile={
                         {
                             id: profile.id,
-                            bio: profile.bio
+                            bio: profile.bio,
+                            user: profile.user,
                         }
                     }
-                    resetFunc={reset}
+                    resetFunc={reload}
                     />
                 </details>
             ): null}
-            <h3>Collection: </h3>
-            <ul>
-            {Object.values(collection).map((item) => (
-                <li key={item.serie.id}>
-                    <h2><Link to={`/series/${item.serie.id}`}>{item.serie.title}</Link></h2>
 
-                    <ul>
-                        {item.chapters.map((chapter) => (
-                            <li key={chapter.id}>
-                                <Link to={`/chapters/${chapter.id}`}>Chapter {chapter.number}: {chapter.name}</Link>
-                                {isConnected? (
-                                    <RemoveFromCollection chapter={chapter.id} resetFunc={reset}/>
-                                ): null}
-                            </li>
-                        ))}
-                    </ul>
-                </li>
-            ))}
-        </ul>
-            <h2>Reviews:</h2>
+            <h2>Collection</h2>
+            {collectionSeries.length === 0 ? (
+                <EmptyState message="No chapters in this collection yet." />
+            ) : (
+                <ul className="collection-list">
+                    {collectionSeries.map((item) => (
+                        <li key={item.serie.id} className="collection-serie">
+                            <img
+                                src={mediaUrl(item.serie.cover, defaultCover)}
+                                alt={`Cover of ${item.serie.title}`}
+                                className="collection-cover"
+                            />
+                            <div>
+                                <h3>
+                                    <Link to={`/series/${item.serie.id}`}>
+                                        {item.serie.title}
+                                    </Link>
+                                </h3>
+                                <p>
+                                    {item.chapters.length} {item.chapters.length === 1 ? "chapter" : "chapters"}
+                                </p>
+
+                                <ul>
+                                    {[...item.chapters].sort((a, b) => a.number - b.number).map((chapter) => (
+                                        <li key={chapter.id}>
+                                            <Link to={`/chapters/${chapter.id}`}>
+                                                Chapter {chapter.number}: {chapter.name}
+                                            </Link>
+                                            {isConnected? (
+                                                <RemoveFromCollection chapter={chapter.id} resetFunc={reload}/>
+                                            ): null}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            )}
+
+            <h2>Reviews</h2>
             <hr />
-            <ReviewComponent id={profile.user.toString()} review_type={"user"} />
+            <ReviewComponent key={profile.user} id={profile.user.toString()} review_type={"user"} />
         </>
     )
 }

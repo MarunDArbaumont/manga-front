@@ -1,24 +1,32 @@
-import type { ResultPagination } from "./api"
-import { api } from "./api"
+import type { Serie } from "./series"
+import { fetchAllPages, fetchOne, fetchPage } from "./api"
+import type { QueryParams } from "./query"
+import { endpoints } from "./endpoints"
 
 export type Author = {
     id: number
     name: string
-    mangas: number[]
     birth_day: string
     death_date: string | null
     image: string | null
-    manga_id: number
+    series: Serie[]
+}
+
+export type AuthorListParams = QueryParams & {
+    limit?: number
+    offset?: number
+    name?: string
+    ordering?: string
+}
+
+export function fetchAuthorsPage(params: AuthorListParams = {}) {
+    return fetchPage<Author>(endpoints.authors, params)
 }
 
 export async function fetchAllAuthors(): Promise<Author[]> {
-    const url: string = "/authors/?limit=0"
-    const result = await api<ResultPagination>(url)
-    return (await result).results
+    return fetchAllPages<Author>(endpoints.authors)
 }
 
 export async function fetchSingleAuthor(id: string): Promise<Author> {
-    const url: string = "/authors/" + id + "/"
-    const result = await api<Author>(url)
-    return result
+    return fetchOne<Author>(endpoints.author(id))
 }
