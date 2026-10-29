@@ -1,50 +1,48 @@
 import { useState, type FormEvent } from "react"
-import { useAuth } from "../context/AuthContext"
-import { ApiError } from "../api/api"
+import { useAuth } from "../context/useAuth"
+import { getApiErrorMessage, type ApiErrorMessages } from "../api/api"
 import { updateProfilePicture } from "../api/users"
+import { useMutation } from "../hooks/useMutation"
 
 type Props = {
-  profile: { id: number }
+  profile: { id: number; user: number }
   resetFunc: () => void
 }
 
 const MAX_SIZE = 5 * 1024 * 1024 // 5 MB
 
+const ERROR_MESSAGES: ApiErrorMessages = {
+  status: {
+    400: "This file isn't a valid image.",
+    401: "You need to be logged in to change your picture.",
+    403: "You need to be logged in to change your picture.",
+    413: "This image is too large.",
+  },
+}
+
 function EditProfilePicture({ profile, resetFunc }: Props) {
   const { user } = useAuth()
   const [picture, setPicture] = useState<File | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [submitting, setSubmitting] = useState(false)
+  const [sizeError, setSizeError] = useState<string | null>(null)
+  const { mutate, pending, error, resetError } = useMutation(updateProfilePicture)
 
-  if (user?.id !== profile.id) return null
+  if (user?.id !== profile.user) return null
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!picture) return
 
     const form = event.currentTarget
-    setError(null)
-    setSubmitting(true)
-
-    try {
-      await updateProfilePicture(profile.id, picture)
+    const result = await mutate(profile.id, picture)
+    if (result.ok) {
       setPicture(null)
+      setSizeError(null)
       form.reset()
       resetFunc()
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 400) {
-        setError("This file isn't a valid image.")
-      } else if (err instanceof ApiError && err.status === 413) {
-        setError("This image is too large.")
-      } else if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
-        setError("You need to be logged in to change your picture.")
-      } else {
-        setError("Something went wrong, please try again.")
-      }
-    } finally {
-      setSubmitting(false)
     }
   }
+
+  const message = sizeError ?? (error ? getApiErrorMessage(error, ERROR_MESSAGES) : null)
 
   return (
     <form onSubmit={handleSubmit} className="file-form">
@@ -53,14 +51,15 @@ function EditProfilePicture({ profile, resetFunc }: Props) {
         id="file"
         accept="image/png, image/jpeg"
         onChange={(event) => {
+          resetError()
           const file = event.target.files?.[0] ?? null
           if (file && file.size > MAX_SIZE) {
-            setError("The image must be under 5 MB.")
+            setSizeError("The image must be under 5 MB.")
             setPicture(null)
             event.target.value = ""
             return
           }
-          setError(null)
+          setSizeError(null)
           setPicture(file)
         }}
       />
@@ -68,10 +67,10 @@ function EditProfilePicture({ profile, resetFunc }: Props) {
         {picture ? picture.name : "Choose a new profile picture"}
       </label>
 
-      {error && <p role="alert">{error}</p>}
+      {message && <p role="alert">{message}</p>}
 
-      <button type="submit" disabled={!picture || submitting}>
-        {submitting ? "Uploading..." : "Save"}
+      <button type="submit" disabled={!picture || pending}>
+        {pending ? "Uploading..." : "Save"}
       </button>
     </form>
   )

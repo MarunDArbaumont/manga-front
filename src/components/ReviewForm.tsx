@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from "react"
-import { ApiError } from "../api/api"
+import { getApiErrorMessage, type ApiErrorMessages } from "../api/api"
 import { createReview } from "../api/users"
 import type { Chapter } from "../api/chapters"
-
+import { useMutation } from "../hooks/useMutation"
 
 type Props = {
     chapter?: Chapter
@@ -10,39 +10,35 @@ type Props = {
     resetFunc: () => void
 }
 
+const ERROR_MESSAGES: ApiErrorMessages = {
+    status: {
+        400: "Your review is invalid, please check the fields.",
+        401: "You need to be logged in to post a review.",
+        403: "You need to be logged in to post a review.",
+    },
+}
+
 function ReviewForm({ chapter, parent, resetFunc }: Props) {
     const [rating, setRating] = useState("")
     const [description, setDescription] = useState("")
-    const [error, setError] = useState<string | null>(null)
-    const [submitting, setSubmitting] = useState(false)
+    const { mutate, pending, error } = useMutation(createReview)
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
-        setError(null)
-        setSubmitting(true)
 
-        try {
-        await createReview({
+        const result = await mutate({
             rating: parent ? null : Number(rating),
             description,
-            chapter,
+            chapter: chapter?.id,
             parent,
         })
-        setRating("")
-        setDescription("")
-        resetFunc()
-        } catch (err) {
-        if (err instanceof ApiError && err.status === 400) {
-            setError("Your review is invalid, please check the fields.")
-        } else if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
-            setError("You need to be logged in to post a review.")
-        } else {
-            setError("Something went wrong, please try again.")
+
+        if (result.ok) {
+            setRating("")
+            setDescription("")
+            resetFunc()
         }
-        } finally {
-        setSubmitting(false)
     }
-  }
 
   return (
     <>
@@ -71,10 +67,10 @@ function ReviewForm({ chapter, parent, resetFunc }: Props) {
           />
         </label>
 
-        {error && <p role="alert">{error}</p>}
+        {error ? <p role="alert">{getApiErrorMessage(error, ERROR_MESSAGES)}</p> : null}
 
-        <button type="submit" disabled={submitting}>
-          {submitting ? "Sending..." : "Submit review"}
+        <button type="submit" disabled={pending}>
+          {pending ? "Sending..." : "Submit review"}
         </button>
       </form>
     </>

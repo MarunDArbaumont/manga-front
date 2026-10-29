@@ -1,18 +1,30 @@
-
-import { useNavigate } from "react-router-dom"
-import { useAuth } from "../context/AuthContext"
-import { Link } from "react-router-dom"
+import { useState, type MouseEvent } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import { useAuth } from "../context/useAuth"
 
 function Disconnect() {
     const { logout } = useAuth()
     const navigate = useNavigate()
-    const handleClick = () => {
-        logout()
-        navigate("/")
+    const [busy, setBusy] = useState(false)
+
+    const handleClick = async (event: MouseEvent<HTMLAnchorElement>) => {
+        event.preventDefault()
+        if (busy) return
+
+        setBusy(true)
+        await logout()
+        navigate("/", { replace: true })
     }
 
     return (
-        <Link className="disconnect" onClick={handleClick} to={"/"}>Disconnect</Link>
+        <Link
+            className="disconnect"
+            onClick={handleClick}
+            to="/"
+            aria-busy={busy}
+        >
+            {busy ? "Disconnecting..." : "Disconnect"}
+        </Link>
     )
 }
 

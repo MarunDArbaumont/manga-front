@@ -1,6 +1,7 @@
-import type { ResultPagination } from "./api"
 import type { Serie } from "./series"
-import { api } from "./api"
+import { fetchAllPages, fetchOne, fetchPage } from "./api"
+import type { QueryParams } from "./query"
+import { endpoints } from "./endpoints"
 
 export type Chapter = {
     id: number
@@ -8,24 +9,30 @@ export type Chapter = {
     name: string
     first_published: string
     manga: Serie
-    average_rating: number
+    average_rating: number | null
     count_rating: number
 }
 
+export type ChapterListParams = QueryParams & {
+    limit?: number
+    offset?: number
+    manga?: string | number
+    number?: number
+    ordering?: string
+}
+
+export function fetchChaptersPage(params: ChapterListParams = {}) {
+    return fetchPage<Chapter>(endpoints.chapters, params)
+}
+
 export async function fetchAllChapters(): Promise<Chapter[]> {
-    const url: string = "/chapters/"
-    const result = await api<ResultPagination>(url)
-    return (await result).results
+    return fetchAllPages<Chapter>(endpoints.chapters)
 }
 
 export async function fetchSingleChapter(id: string): Promise<Chapter> {
-    const url: string = "/chapters/" + id + "/"
-    const result = api<Chapter>(url)
-    return result
+    return fetchOne<Chapter>(endpoints.chapter(id))
 }
 
-export async function ChaptersByMangaId(id: string): Promise<Chapter[]> {
-    const url: string = "/chapters?manga=" + id + "/"
-    const result = await api<ResultPagination>(url)
-    return (await result).results
+export async function fetchChaptersByMangaId(id: string): Promise<Chapter[]> {
+    return fetchAllPages<Chapter>(endpoints.chapters, { manga: id })
 }

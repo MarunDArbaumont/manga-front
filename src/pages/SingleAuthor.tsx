@@ -6,7 +6,7 @@ function SingleAuthorPage() {
     const { id } = useParams<{ id: string }>()
 
     if (!id) {
-        return <ErrorMessage message="Invalid chapter id" />
+        return <ErrorMessage message="Invalid author id" />
     }
 
     return (
