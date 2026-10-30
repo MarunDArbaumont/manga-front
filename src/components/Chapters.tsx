@@ -91,6 +91,8 @@ function AllChapters() {
                         <option value="-first_published">Newest first</option>
                         <option value="manga">Series ID ascending</option>
                         <option value="-manga">Series ID descending</option>
+                        <option value="-average_rating">Highest rank</option>
+                        <option value="average_rating">Lowest rank</option>
                     </select>
                 </label>
                 <div className="filter-actions">
