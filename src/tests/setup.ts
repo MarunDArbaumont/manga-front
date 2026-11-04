@@ -5,7 +5,7 @@ let mockFetchImplementation: ((url: RequestInfo, init?: RequestInit) => Promise<
 
 // Set up global fetch mock
 beforeAll(() => {
-  (global as any).fetch = jest.fn(async (url: RequestInfo, init?: RequestInit) => {
+  globalThis.fetch = jest.fn(async (url: RequestInfo, init?: RequestInit) => {
     if (mockFetchImplementation) {
       return mockFetchImplementation(url, init);
     }

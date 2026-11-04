@@ -3,10 +3,12 @@ import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
-import { defineConfig, globalIgnores } from 'eslint/config'
+import { defineConfig } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  {
+    ignores: ['dist/', 'node_modules/', 'src/**/*.test.ts', 'src/**/*.test.tsx', 'src/tests/', 'src/api/variables.ts', 'src/**/__mocks__/', 'src/tests/mocks/'],
+  },
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -16,8 +18,24 @@ export default defineConfig([
       reactRefresh.configs.vite,
     ],
     languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser,
+      ecmaVersion: 'latest',
+      globals: {
+        ...globals.browser,
+      },
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+    },
+    rules: {
+      // Allow unused vars prefixed with underscore
+      '@typescript-eslint/no-unused-vars': ['error', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+      }],
+      // Disable base rule as we use @typescript-eslint version
+      'no-unused-vars': 'off',
     },
   },
 ])

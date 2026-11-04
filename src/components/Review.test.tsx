@@ -23,7 +23,10 @@ jest.mock('../api/users', () => ({
   fetchReviewsPage: jest.fn(),
 }));
 
-const { fetchReviewsPage } = require('../api/users');
+// Get the mocked function
+const { fetchReviewsPage } = jest.requireActual('../api/users') as {
+  fetchReviewsPage: jest.Mock;
+};
 
 describe('Review Component - Pagination', () => {
   beforeEach(() => {

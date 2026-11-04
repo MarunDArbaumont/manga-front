@@ -30,8 +30,7 @@ function ReviewComponent({ id, review_type }: Props) {
   const [offset, setOffset] = useState(0)
 
   const loadReviews = useCallback(() => {
-    const safeOffset = Math.min(offset, Math.max(0, (data?.count ?? 0) - 1));
-    const params = { limit: PAGE_SIZE, offset: safeOffset }
+    const params = { limit: PAGE_SIZE, offset: offset }
 
     if (review_type === "chapter") {
       return fetchReviewsPage({ ...params, chapter: id })

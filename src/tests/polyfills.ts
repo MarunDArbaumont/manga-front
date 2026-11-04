@@ -3,22 +3,24 @@
 import { TextEncoder, TextDecoder } from 'node:util';
 
 // Add TextEncoder and TextDecoder to global scope for jsdom
-if (typeof global.TextEncoder === 'undefined') {
-  (global as any).TextEncoder = TextEncoder;
+// In jsdom environment, we need to add these to the global object
+if (typeof globalThis.TextEncoder === 'undefined') {
+  globalThis.TextEncoder = TextEncoder as typeof globalThis.TextEncoder;
 }
-if (typeof global.TextDecoder === 'undefined') {
-  (global as any).TextDecoder = TextDecoder;
+if (typeof globalThis.TextDecoder === 'undefined') {
+  globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;
 }
 
 // Mock import.meta.env for Vite environment variables
-if (typeof (global as any).import === 'undefined') {
-  (global as any).import = {};
+// This is needed for files that use import.meta.env.VITE_*
+if (typeof globalThis.import === 'undefined') {
+  globalThis.import = {} as any;
 }
-if (typeof (global as any).import.meta === 'undefined') {
-  (global as any).import.meta = {};
+if (typeof (globalThis.import as any).meta === 'undefined') {
+  (globalThis.import as any).meta = {};
 }
-if (typeof (global as any).import.meta.env === 'undefined') {
-  (global as any).import.meta.env = {
+if (typeof (globalThis.import as any).meta.env === 'undefined') {
+  (globalThis.import as any).meta.env = {
     VITE_API_BASE_URL: '/api/',
     VITE_MEDIA_BASE_URL: '/media/',
   };

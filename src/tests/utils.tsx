@@ -40,7 +40,7 @@ export const mockFetchWithHandlers = (handlers: Array<{
   path: string;
   resolver: (req: Request) => Promise<Response> | Response;
 }>) => {
-  (window as any).fetch = jest.fn(async (url: RequestInfo, init?: RequestInit) => {
+  globalThis.fetch = jest.fn(async (url: RequestInfo, init?: RequestInit) => {
     const request = new Request(url, init);
     const urlString = url.toString();
     const method = request.method || 'GET';
@@ -76,7 +76,7 @@ export const mockFetchWithHandlers = (handlers: Array<{
 
 // Helper to mock fetch with a simple response
 export const mockFetch = (response: any, status = 200) => {
-  (window as any).fetch = jest.fn(() =>
+  globalThis.fetch = jest.fn(() =>
     Promise.resolve({
       ok: status >= 200 && status < 300,
       status,
@@ -84,7 +84,7 @@ export const mockFetch = (response: any, status = 200) => {
       headers: new Headers(),
       redirected: false,
       statusText: status >= 200 && status < 300 ? 'OK' : 'Error',
-      type: 'basic',
+      type: 'basic' as const,
       url: '',
       clone: () => ({}),
       text: () => Promise.resolve(JSON.stringify(response)),
@@ -94,5 +94,5 @@ export const mockFetch = (response: any, status = 200) => {
 
 // Helper to mock fetch with error
 export const mockFetchError = (error: Error) => {
-  (window as any).fetch = jest.fn(() => Promise.reject(error));
+  globalThis.fetch = jest.fn(() => Promise.reject(error));
 };
