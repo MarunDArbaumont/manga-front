@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "CommonJS",
+    "jsx": "react-jsx",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["jest", "@testing-library/jest-dom", "@types/react", "@types/react-dom", "@types/node"]
+  },
+  "include": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/tests/**/*"],
+  "include": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/tests/mocks/image.d.ts"]
+}
