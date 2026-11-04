@@ -7,15 +7,15 @@ import ReviewComponent from './Review';
 import { TestWrapper } from '../tests/wrappers';
 import { setMockFetch } from '../tests/setup';
 
-// Mock the image import
-jest.mock('../assets/img/Pandaman_Oda.jpg', () => 'test-image-stub');
+// Mock the image import (virtual because it's not a JS module)
+jest.mock('../assets/img/Pandaman_Oda.jpg', () => 'test-image-stub', { virtual: true });
 
-// Mock the variables import
+// Mock the variables import (virtual in case module resolution differs in test env)
 jest.mock('../api/variables', () => ({
   API_BASE_URL: '/api/',
   MEDIA_BASE_URL: '/media/',
   mediaUrl: (path: string | null | undefined) => `/media/${path}`,
-}));
+}), { virtual: true });
 
 const mockReview = {
   id: 1,
