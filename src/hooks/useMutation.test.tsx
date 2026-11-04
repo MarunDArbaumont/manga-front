@@ -2,8 +2,8 @@
  * Tests for useMutation hook
  * Tests optimistic updates, error handling, and loading states
  */
-import { renderHook, waitFor } from '@testing-library/react';
-import { useMutation } from './useMutation';
+import { renderHook, waitFor, act } from '@testing-library/react';
+import { useMutation, type MutationResult } from './useMutation';
 
 describe('useMutation', () => {
   it('should return initial state', () => {
@@ -24,11 +24,14 @@ describe('useMutation', () => {
       useMutation(mutationFn)
     );
 
-    const mutationResult = await result.current.mutate();
+    let mutationResult: MutationResult<any>;
+    await act(async () => {
+      mutationResult = await result.current.mutate();
+    });
     
-    expect(mutationResult.ok).toBe(true);
-    if (mutationResult.ok) {
-      expect(mutationResult.data).toEqual(mockData);
+    expect(mutationResult!.ok).toBe(true);
+    if (mutationResult!.ok) {
+      expect(mutationResult!.data).toEqual(mockData);
     }
     expect(result.current.pending).toBe(false);
     expect(result.current.error).toBeNull();
@@ -42,13 +45,14 @@ describe('useMutation', () => {
       useMutation(mutationFn)
     );
 
-    const mutationResult = await result.current.mutate();
-    
-    expect(mutationResult.ok).toBe(false);
-    // Wait for the error to be set in state
-    await waitFor(() => {
-      expect(result.current.error).toBe(error);
+    let mutationResult: MutationResult<any>;
+    await act(async () => {
+      mutationResult = await result.current.mutate();
     });
+    
+    expect(mutationResult!.ok).toBe(false);
+    expect(result.current.pending).toBe(false);
+    expect(result.current.error).toBe(error);
   });
 
   it('should reset error', async () => {
@@ -59,20 +63,19 @@ describe('useMutation', () => {
       useMutation(mutationFn)
     );
 
-    await result.current.mutate();
+    await act(async () => {
+      await result.current.mutate();
+    });
     
-    // Wait for error to be set
-    await waitFor(() => {
-      expect(result.current.error).toBe(error);
+    expect(result.current.pending).toBe(false);
+    expect(result.current.error).toBe(error);
+
+    // Reset error wrapped in act
+    await act(async () => {
+      result.current.resetError();
     });
 
-    // Reset error
-    result.current.resetError();
-    
-    // Wait for error to be cleared
-    await waitFor(() => {
-      expect(result.current.error).toBeNull();
-    });
+    expect(result.current.error).toBeNull();
   });
 
   it('should clear error on successful mutation after previous error', async () => {
@@ -93,17 +96,19 @@ describe('useMutation', () => {
     );
 
     // First call fails
-    await result.current.mutate();
-    await waitFor(() => {
-      expect(result.current.error).toBe(error);
+    await act(async () => {
+      await result.current.mutate();
     });
+    expect(result.current.pending).toBe(false);
+    expect(result.current.error).toBe(error);
 
     // Second call succeeds
-    const mutationResult = await result.current.mutate();
-    expect(mutationResult.ok).toBe(true);
-    // Error should be cleared on success
-    await waitFor(() => {
-      expect(result.current.error).toBeNull();
+    let mutationResult: MutationResult<any>;
+    await act(async () => {
+      mutationResult = await result.current.mutate();
     });
+    expect(mutationResult!.ok).toBe(true);
+    expect(result.current.pending).toBe(false);
+    expect(result.current.error).toBeNull();
   });
 });
