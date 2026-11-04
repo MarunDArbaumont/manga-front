@@ -40,7 +40,7 @@ export const mockFetchWithHandlers = (handlers: Array<{
   path: string;
   resolver: (req: Request) => Promise<Response> | Response;
 }>) => {
-  globalThis.fetch = jest.fn(async (url: RequestInfo, init?: RequestInit) => {
+  globalThis.fetch = jest.fn(async (url: RequestInfo | URL, init?: RequestInit) => {
     const request = new Request(url, init);
     const urlString = url.toString();
     const method = request.method || 'GET';
@@ -76,23 +76,12 @@ export const mockFetchWithHandlers = (handlers: Array<{
 
 // Helper to mock fetch with a simple response
 export const mockFetch = (response: any, status = 200) => {
-  globalThis.fetch = jest.fn(() =>
-    Promise.resolve({
-      ok: status >= 200 && status < 300,
-      status,
-      json: () => Promise.resolve(response),
-      headers: new Headers(),
-      redirected: false,
-      statusText: status >= 200 && status < 300 ? 'OK' : 'Error',
-      type: 'basic' as const,
-      url: '',
-      clone: () => ({}),
-      text: () => Promise.resolve(JSON.stringify(response)),
-    })
+  globalThis.fetch = jest.fn((url: RequestInfo | URL, init?: RequestInit) =>
+    Promise.resolve(createResponse(response, status))
   );
 };
 
 // Helper to mock fetch with error
 export const mockFetchError = (error: Error) => {
-  globalThis.fetch = jest.fn(() => Promise.reject(error));
+  globalThis.fetch = jest.fn((url: RequestInfo | URL, init?: RequestInit) => Promise.reject(error));
 };

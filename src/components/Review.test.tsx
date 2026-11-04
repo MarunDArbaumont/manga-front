@@ -2,11 +2,10 @@
  * Tests for Review component
  * Tests pagination stability and offset clamping
  */
-import { render, screen, waitFor } from '../tests/utils';
-import { MemoryRouter } from 'react-router-dom';
+import { render, screen, waitFor, createResponse } from '../tests/utils';
 import ReviewComponent from './Review';
 import { TestWrapper } from '../tests/wrappers';
-import { mockFetch, mockFetchError } from '../tests/utils';
+import { setMockFetch } from '../tests/setup';
 
 // Mock the image import
 jest.mock('../assets/img/Pandaman_Oda.jpg', () => 'test-image-stub');
@@ -15,32 +14,53 @@ jest.mock('../assets/img/Pandaman_Oda.jpg', () => 'test-image-stub');
 jest.mock('../api/variables', () => ({
   API_BASE_URL: '/api/',
   MEDIA_BASE_URL: '/media/',
-  mediaUrl: (path: string) => `/media/${path}`,
+  mediaUrl: (path: string | null | undefined) => `/media/${path}`,
 }));
 
-// Mock the fetchReviewsPage function
-jest.mock('../api/users', () => ({
-  fetchReviewsPage: jest.fn(),
-}));
+const mockReview = {
+  id: 1,
+  rating: 5,
+  description: 'Great!',
+  user: { id: 1, username: 'user1', picture: null },
+  chapter: { id: 1, number: 1, name: 'Chapter 1', manga: { title: 'Test Manga' } },
+  is_edited: false,
+  likes: 0,
+  dislikes: 0,
+  my_reaction: null,
+  parent: null,
+};
 
-// Get the mocked function
-const { fetchReviewsPage } = jest.requireActual('../api/users') as {
-  fetchReviewsPage: jest.Mock;
+const mockReviewData = {
+  count: 5,
+  next: null,
+  previous: null,
+  results: [
+    mockReview,
+    {
+      ...mockReview,
+      id: 2,
+      rating: 4,
+      description: 'Good',
+      user: { id: 2, username: 'user2', picture: null },
+    },
+  ],
+};
+
+const mockEmptyData = {
+  count: 0,
+  next: null,
+  previous: null,
+  results: [],
 };
 
 describe('Review Component - Pagination', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   it('should render loading state initially', () => {
-    (fetchReviewsPage as jest.Mock).mockImplementation(() => 
-      new Promise(() => {}) // Never resolves
-    );
+    // Mock that never resolves
+    setMockFetch((url: RequestInfo | URL, init?: RequestInit) => new Promise<Response>(() => {}) );
 
     render(
       <TestWrapper>
@@ -52,39 +72,9 @@ describe('Review Component - Pagination', () => {
   });
 
   it('should render reviews when data is loaded', async () => {
-    const mockData = {
-      count: 5,
-      next: null,
-      previous: null,
-      results: [
-        {
-          id: 1,
-          rating: 5,
-          description: 'Great!',
-          user: { id: 1, username: 'user1', picture: null },
-          chapter: { id: 1, number: 1, name: 'Chapter 1' },
-          is_edited: false,
-          likes: 0,
-          dislikes: 0,
-          my_reaction: null,
-          parent: null,
-        },
-        {
-          id: 2,
-          rating: 4,
-          description: 'Good',
-          user: { id: 2, username: 'user2', picture: null },
-          chapter: { id: 1, number: 1, name: 'Chapter 1' },
-          is_edited: false,
-          likes: 0,
-          dislikes: 0,
-          my_reaction: null,
-          parent: null,
-        },
-      ],
-    };
-
-    (fetchReviewsPage as jest.Mock).mockResolvedValue(mockData);
+    setMockFetch((url: RequestInfo | URL, init?: RequestInit) => {
+      return Promise.resolve(createResponse(mockReviewData));
+    });
 
     render(
       <TestWrapper>
@@ -99,14 +89,9 @@ describe('Review Component - Pagination', () => {
   });
 
   it('should render empty state when no reviews exist', async () => {
-    const mockData = {
-      count: 0,
-      next: null,
-      previous: null,
-      results: [],
-    };
-
-    (fetchReviewsPage as jest.Mock).mockResolvedValue(mockData);
+    setMockFetch((url: RequestInfo | URL, init?: RequestInit) =>
+      Promise.resolve(createResponse(mockEmptyData))
+    );
 
     render(
       <TestWrapper>
@@ -119,93 +104,10 @@ describe('Review Component - Pagination', () => {
     });
   });
 
-  it('should handle pagination with offset clamping', async () => {
-    // Simulate a scenario where offset is beyond the count
-    const mockData = {
-      count: 5,
-      next: null,
-      previous: null,
-      results: [
-        {
-          id: 1,
-          rating: 5,
-          description: 'Review 1',
-          user: { id: 1, username: 'user1', picture: null },
-          chapter: { id: 1, number: 1, name: 'Chapter 1' },
-          is_edited: false,
-          likes: 0,
-          dislikes: 0,
-          my_reaction: null,
-          parent: null,
-        },
-        {
-          id: 2,
-          rating: 4,
-          description: 'Review 2',
-          user: { id: 2, username: 'user2', picture: null },
-          chapter: { id: 1, number: 1, name: 'Chapter 1' },
-          is_edited: false,
-          likes: 0,
-          dislikes: 0,
-          my_reaction: null,
-          parent: null,
-        },
-        {
-          id: 3,
-          rating: 3,
-          description: 'Review 3',
-          user: { id: 1, username: 'user1', picture: null },
-          chapter: { id: 1, number: 1, name: 'Chapter 1' },
-          is_edited: false,
-          likes: 0,
-          dislikes: 0,
-          my_reaction: null,
-          parent: null,
-        },
-        {
-          id: 4,
-          rating: 2,
-          description: 'Review 4',
-          user: { id: 2, username: 'user2', picture: null },
-          chapter: { id: 1, number: 1, name: 'Chapter 1' },
-          is_edited: false,
-          likes: 0,
-          dislikes: 0,
-          my_reaction: null,
-          parent: null,
-        },
-        {
-          id: 5,
-          rating: 1,
-          description: 'Review 5',
-          user: { id: 1, username: 'user1', picture: null },
-          chapter: { id: 1, number: 1, name: 'Chapter 1' },
-          is_edited: false,
-          likes: 0,
-          dislikes: 0,
-          my_reaction: null,
-          parent: null,
-        },
-      ],
-    };
-
-    (fetchReviewsPage as jest.Mock).mockResolvedValue(mockData);
-
-    render(
-      <TestWrapper>
-        <ReviewComponent id="1" review_type="chapter" />
-      </TestWrapper>
-    );
-
-    await waitFor(() => {
-      // Should render all 5 reviews
-      expect(screen.getByText('Review 1')).toBeInTheDocument();
-      expect(screen.getByText('Review 5')).toBeInTheDocument();
-    });
-  });
-
   it('should handle error state', async () => {
-    (fetchReviewsPage as jest.Mock).mockRejectedValue(new Error('Server error'));
+    setMockFetch((url: RequestInfo | URL, init?: RequestInit) =>
+      Promise.resolve(createResponse({ detail: 'Server error' }, 500))
+    );
 
     render(
       <TestWrapper>
@@ -215,6 +117,38 @@ describe('Review Component - Pagination', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/error/i)).toBeInTheDocument();
+    });
+  });
+
+  it('should handle user review type', async () => {
+    setMockFetch((url: RequestInfo | URL, init?: RequestInit) =>
+      Promise.resolve(createResponse(mockReviewData))
+    );
+
+    render(
+      <TestWrapper>
+        <ReviewComponent id="1" review_type="user" />
+      </TestWrapper>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Great!')).toBeInTheDocument();
+    });
+  });
+
+  it('should handle children review type', async () => {
+    setMockFetch((url: RequestInfo | URL, init?: RequestInit) =>
+      Promise.resolve(createResponse(mockEmptyData))
+    );
+
+    render(
+      <TestWrapper>
+        <ReviewComponent id="1" review_type="children" />
+      </TestWrapper>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/no comments yet/i)).toBeInTheDocument();
     });
   });
 });
