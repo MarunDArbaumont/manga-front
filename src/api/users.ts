@@ -88,7 +88,7 @@ export const addToCollection = (chapter: number) =>
         body: { chapter },
     })
 
-export const removeToCollection = (chapter: number) =>
+export const removeFromCollection = (chapter: number) =>
     api<{ message: string }>(endpoints.removeFromCollection, {
         method: "DELETE",
         body: { chapter },

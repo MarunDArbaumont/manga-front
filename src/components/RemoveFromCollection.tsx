@@ -1,4 +1,4 @@
-import { removeToCollection } from "../api/users"
+import { removeFromCollection } from "../api/users"
 import { getApiErrorMessage, type ApiErrorMessages } from "../api/api"
 import { useMutation } from "../hooks/useMutation"
 
@@ -16,7 +16,7 @@ const ERROR_MESSAGES: ApiErrorMessages = {
 }
 
 function RemoveFromCollection({ chapter, resetFunc }: Props) {
-    const { mutate, pending, error } = useMutation(removeToCollection)
+    const { mutate, pending, error } = useMutation(removeFromCollection)
 
     const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault()
